@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medisathi/core/constants/app_assets.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
@@ -19,6 +20,14 @@ class GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+      final image = Image.asset(
+      AppAssets.googleLogo,
+     height: 20,
+     width: 20,
+      fit: BoxFit.scaleDown,
+      filterQuality: FilterQuality.high,
+      semanticLabel: 'MediSathi logo',
+    );
     return OutlinedButton(
       onPressed: isLoading ? null : onPressed,
       style: OutlinedButton.styleFrom(
@@ -39,14 +48,7 @@ class GoogleSignInButton extends StatelessWidget {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'G',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF4285F4),
-                  ),
-                ),
+               image,
                 const SizedBox(width: 12),
                 Text(label),
               ],
