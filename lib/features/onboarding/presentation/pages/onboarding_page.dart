@@ -1,177 +1,144 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:medisathi/core/constants/colors.dart';
-import 'package:medisathi/features/onboarding/presentation/bloc/onboarding_bloc.dart';
-import 'package:medisathi/features/onboarding/presentation/bloc/onboarding_event.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_logo.dart';
+import '../bloc/onboarding_bloc.dart';
+import '../widgets/onboarding_buttons.dart';
+import '../widgets/onboarding_slide_view.dart';
+import '../widgets/page_indicator.dart';
 
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+class OnboardingPage extends StatefulWidget {
+  const OnboardingPage({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+class _OnboardingPageState extends State<OnboardingPage> {
+  final _controller = PageController();
 
-  final List<Map<String, String>> _pages = [
-    {
-      'title': 'Your Health Companion',
-      'description': 'Manage prescriptions, reports and health records securely.',
-      'icon': 'favorite',
-    },
-    {
-      'title': 'Schedule your medicines',
-      'description': 'Never forget to take your medicines.',
-      'icon': 'medical_services',
-    },
-    {
-      'title': 'Track your progress',
-      'description': 'Monitor your health and well-being.',
-      'icon': 'calendar_month',
-    },
-    
-  ];
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _goTo(int page) => _controller.animateToPage(
+        page,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: scaffoldColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
-                },
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: BlocConsumer<OnboardingBloc, OnboardingState>(
+        listenWhen: (prev, curr) =>
+            curr.destination != null && prev.destination != curr.destination,
+        listener: (context, state) {
+          context.go(state.destination == OnboardingDestination.signUp
+              ? AppRoutes.signUp
+              : AppRoutes.signIn);
+        },
+        builder: (context, state) {
+          if (state.slides.isEmpty) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            );
+          }
+
+          final bloc = context.read<OnboardingBloc>();
+          final lastIndex = state.slides.length - 1;
+
+          return Scaffold(
+            body: SafeArea(
+              child: Column(
+                children: [
+                  // Top bar: brand + Skip
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 12, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          _getIcon(_pages[index]['icon']!),
-                          size: 140,
-                          color: secondaryColor,
+                        const Row(
+                          children: [
+                            AppLogo(size: 36, shadow: false),
+                            SizedBox(width: 8),
+                            Text(
+                              'MediSathi',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 40),
-                        Text(
-                          _pages[index]['title']!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _pages[index]['description']!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            height: 1.5,
+                        AnimatedOpacity(
+                          opacity: state.isLast ? 0 : 1,
+                          duration: const Duration(milliseconds: 200),
+                          child: IgnorePointer(
+                            ignoring: state.isLast,
+                            child: TextButton(
+                              onPressed: () => _goTo(lastIndex),
+                              child: const Text('Skip'),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-
-            // Dots Indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pages.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 8,
-                  width: _currentPage == index ? 24 : 8,
-                  decoration: BoxDecoration(
-                    color: _currentPage == index
-                        ? tertiaryColor
-                        : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(4),
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
 
-            // Buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Row(
-                children: [
-                  if (_currentPage > 0)
-                    TextButton(
-                      onPressed: () {
-                        _pageController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      },
-                      child: const Text('Back'),
+                  // Slides
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _controller,
+                      itemCount: state.slides.length,
+                      onPageChanged: (i) => bloc.add(OnboardingPageChanged(i)),
+                      itemBuilder: (_, i) =>
+                          OnboardingSlideView(slide: state.slides[i]),
                     ),
-                  const Spacer(),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:secondaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  PageIndicator(
+                    count: state.slides.length,
+                    current: state.currentPage,
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Bottom actions (fixed height so layout does not jump)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: SizedBox(
+                      height: 124,
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: state.isLast
+                            ? OnboardingAuthButtons(
+                                onSignUp: () => bloc.add(const OnboardingFinished(
+                                    OnboardingDestination.signUp)),
+                                onSignIn: () => bloc.add(const OnboardingFinished(
+                                    OnboardingDestination.signIn)),
+                              )
+                            : OnboardingNextButton(
+                                onPressed: () => _goTo(state.currentPage + 1),
+                              ),
                       ),
-                    ),
-                    onPressed: () {
-                      if (_currentPage == _pages.length - 1) {
-                        // Finish Onboarding
-                        context.read<OnboardingBloc>().add(CompleteOnboarding());
-                        // TODO: Navigate to Login / Home
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Onboarding Completed!')),
-                        );
-                      } else {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      }
-                    },
-                    child: Text(
-                      _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
-  }
-
-  IconData _getIcon(String name) {
-    switch (name) {
-      case 'medical_services':
-        return Icons.medical_services_rounded;
-      case 'calendar_month':
-        return Icons.calendar_month_rounded;
-      case 'favorite':
-        return Icons.favorite_rounded;
-      default:
-        return Icons.health_and_safety;
-    }
   }
 }

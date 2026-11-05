@@ -1,11 +1,11 @@
 class AppRoutes {
-  // Launch + auth
+  AppRoutes._();
+
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
 
-  // App
   static const home = '/';
   static const medications = '/medications';
   static const addMedication = '/medications/add';

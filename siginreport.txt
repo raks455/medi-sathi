@@ -1,0 +1,238 @@
+E:\medisathifrontend\medisathi\android>   gradlew signingReport
+Starting a Gradle Daemon, 3 busy and 2 incompatible Daemons could not be reused, use --status for details
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+Variant: release
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :connectivity_plus:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :firebase_auth:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :firebase_core:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :flutter_local_notifications:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :google_sign_in_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :path_provider_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :shared_preferences_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+BUILD SUCCESSFUL in 2m 30s
+12 actionable tasks: 11 executed, 1 up-to-date
+E:\medisathifrontend\medisathi\android>   gradlew signingReport
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+Variant: release
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :connectivity_plus:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :firebase_auth:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :firebase_core:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :flutter_local_notifications:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :google_sign_in_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :path_provider_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+> Task :shared_preferences_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Acer\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AD:41:52:15:6D:18:DE:42:BA:8B:F1:7B:18:6A:1A:09
+SHA1: A0:7E:36:30:9A:18:FB:AB:6B:1C:7F:D6:44:09:7E:80:51:26:36:76
+SHA-256: 28:CC:3B:0E:D0:72:4F:6B:82:F0:A7:7A:FF:F7:0E:41:3C:6E:3C:66:0A:F9:6B:3C:C6:F3:F0:4A:D3:19:21:3C
+Valid until: Sunday, March 15, 2054
+----------
+
+
