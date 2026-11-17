@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/user.dart';
+import '../../../notification/data/services/push_notification_service.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../datasources/auth_token_storage.dart';
@@ -13,11 +14,13 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
   final AuthTokenStorage tokenStorage;
   final GoogleAuthDataSource googleAuth;
+  final PushNotificationService pushService;
 
   AuthRepositoryImpl({
     required this.remote,
     required this.tokenStorage,
     required this.googleAuth,
+    required this.pushService,
   });
 
   @override
@@ -75,6 +78,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> signOut() async {
     try {
+      // Needs the access token, so it must run before the session is cleared.
+      await pushService.unregisterDevice();
       final refresh = await tokenStorage.readRefreshToken();
       if (refresh != null) {
         // Best effort: even if the server call fails we still sign out locally.

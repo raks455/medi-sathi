@@ -17,6 +17,8 @@ class AppColors {
   static const textPrimary = Color(0xFF1E3A56);   // deep navy
   static const textSecondary = Color(0xFF5E7B8F); // muted blue-grey
   static const error = Color(0xFFC0504D);
+  static const success = Color(0xFF4E9A7B);  // muted green (dose taken)
+  static const warning = Color(0xFFC98A2B);  // muted amber (dose due)
 
   static const List<Color> splashGradient = [
     Color(0xFF3368A0),

@@ -78,6 +78,53 @@ class AppTheme {
           textStyle: buttonText,
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: AppColors.tertiary,
+        elevation: 3,
+        shadowColor: Colors.black,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primary
+                : AppColors.textSecondary,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) {
+            final selected = states.contains(WidgetState.selected);
+            return TextStyle(
+              fontSize: 12,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? AppColors.primary : AppColors.textSecondary,
+            );
+          },
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 2,
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        backgroundColor: AppColors.surface,
+        selectedColor: AppColors.primary,
+        checkmarkColor: Colors.white,
+        deleteIconColor: AppColors.textSecondary,
+        side: const BorderSide(color: AppColors.tertiary, width: 1.2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        // Chips only resolve the style's *color* per state, so the state
+        // logic has to live in the color (not in a WidgetStateTextStyle).
+        labelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : AppColors.textPrimary,
+          ),
+        ),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,

@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/api_error.dart';
@@ -60,9 +63,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthSessionModel> _authenticate(
       String path, Map<String, dynamic> body) async {
     try {
+     
+      log("body $body");
       final res = await dio.post(path, data: body);
       return AuthSessionModel.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
+      debugPrint('AUTH ERROR $path -> ${e.response?.statusCode} ${e.response?.data}');
       throw mapDioException(e);
     }
   }
