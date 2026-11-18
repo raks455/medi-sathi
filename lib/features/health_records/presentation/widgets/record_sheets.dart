@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/camera_capture_page.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/health_record.dart';
 
@@ -22,20 +24,20 @@ Future<LocalFile?> pickRecordFile(BuildContext context) async {
         child: InfoCard(children: [
           InfoTile(
             icon: Icons.photo_camera_outlined,
-            title: 'Take a photo',
+            title: 'Take a photo'.tr,
             onTap: () => Navigator.pop(sheet, _Source.camera),
           ),
           const InfoDivider(),
           InfoTile(
             icon: Icons.photo_library_outlined,
-            title: 'Choose from gallery',
+            title: 'Choose from gallery'.tr,
             onTap: () => Navigator.pop(sheet, _Source.gallery),
           ),
           const InfoDivider(),
           InfoTile(
             icon: Icons.picture_as_pdf_outlined,
-            title: 'Choose a PDF or file',
-            subtitle: 'PDF, JPG, PNG, WEBP or HEIC',
+            title: 'Choose a PDF or file'.tr,
+            subtitle: 'PDF, JPG, PNG, WEBP or HEIC'.tr,
             onTap: () => Navigator.pop(sheet, _Source.file),
           ),
         ]),
@@ -54,8 +56,14 @@ Future<LocalFile?> pickRecordFile(BuildContext context) async {
       if (file == null || file.path == null) return null;
       return LocalFile(path: file.path!, name: file.name);
     }
+    if (source == _Source.camera) {
+      if (!context.mounted) return null;
+      final path = await takePhoto(context, quality: PhotoQuality.document);
+      if (path == null) return null;
+      return LocalFile(path: path, name: path.split(RegExp(r'[/\\]')).last);
+    }
     final image = await ImagePicker().pickImage(
-      source: source == _Source.camera ? ImageSource.camera : ImageSource.gallery,
+      source: ImageSource.gallery,
       maxWidth: 2400,
       maxHeight: 2400,
       imageQuality: 85,
@@ -65,7 +73,8 @@ Future<LocalFile?> pickRecordFile(BuildContext context) async {
   } catch (_) {
     if (context.mounted) {
       showInfoSnack(context,
-          'Could not open the picker. Check camera and storage permissions.',
+          'Could not open the picker. Check camera and storage permissions.'
+              .tr,
           error: true);
     }
     return null;
@@ -182,8 +191,10 @@ class _RecordDetailsFormState extends State<_RecordDetailsForm> {
             children: [
               Text(
                 widget.existing == null
-                    ? (isPrescription ? 'Save prescription' : 'Save document')
-                    : 'Edit details',
+                    ? (isPrescription
+                        ? 'Save prescription'.tr
+                        : 'Save document'.tr)
+                    : 'Edit details'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -196,13 +207,13 @@ class _RecordDetailsFormState extends State<_RecordDetailsForm> {
                 maxLength: 150,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  labelText: 'Title',
+                  labelText: 'Title'.tr,
                   hintText: isPrescription
-                      ? 'e.g. Dr. Sharma - fever'
-                      : 'e.g. Blood test (CBC)',
+                      ? 'e.g. Dr. Sharma - fever'.tr
+                      : 'e.g. Blood test (CBC)'.tr,
                 ),
                 validator: (v) =>
-                    (v ?? '').trim().isEmpty ? 'Enter a title' : null,
+                    (v ?? '').trim().isEmpty ? 'Enter a title'.tr : null,
               ),
               if (!isPrescription) ...[
                 const SizedBox(height: 4),
@@ -212,7 +223,7 @@ class _RecordDetailsFormState extends State<_RecordDetailsForm> {
                   children: [
                     for (final c in RecordCategory.documentTypes)
                       ChoiceChip(
-                        label: Text(c.label),
+                        label: Text(c.label.tr),
                         selected: _category == c,
                         showCheckmark: false,
                         onSelected: (_) => setState(() => _category = c),
@@ -227,7 +238,7 @@ class _RecordDetailsFormState extends State<_RecordDetailsForm> {
                     minimumSize: const Size.fromHeight(50)),
                 icon: const Icon(Icons.event_outlined),
                 label: Text(_date == null
-                    ? 'Date on the document (optional)'
+                    ? 'Date on the document (optional)'.tr
                     : DateFormat.yMMMd().format(_date!)),
               ),
               const SizedBox(height: 12),
@@ -237,15 +248,15 @@ class _RecordDetailsFormState extends State<_RecordDetailsForm> {
                 maxLines: 4,
                 maxLength: 2000,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (optional)',
+                decoration: InputDecoration(
+                  labelText: 'Notes (optional)'.tr,
                   alignLabelWithHint: true,
                 ),
               ),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _submit,
-                child: Text(widget.actionLabel),
+                child: Text(widget.actionLabel.tr),
               ),
             ],
           ),

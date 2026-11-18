@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/wellness.dart';
@@ -54,8 +55,10 @@ class _MoodCheckInCardState extends State<MoodCheckInCard> {
                 Expanded(
                   child: Text(
                     asking
-                        ? 'How are you feeling right now?'
-                        : 'Today you feel ${today.mood.label.toLowerCase()}',
+                        ? 'How are you feeling right now?'.tr
+                        : 'Today you feel {mood}'.trArgs({
+                            'mood': today.mood.localizedLabel.toLowerCase(),
+                          }),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -72,12 +75,12 @@ class _MoodCheckInCardState extends State<MoodCheckInCard> {
                 else if (!asking)
                   TextButton(
                     onPressed: () => setState(() => _changing = true),
-                    child: const Text('Update'),
+                    child: Text('Update'.tr),
                   )
                 else if (today != null)
                   TextButton(
                     onPressed: () => setState(() => _changing = false),
-                    child: const Text('Cancel'),
+                    child: Text('Cancel'.tr),
                   ),
               ],
             ),
@@ -101,8 +104,12 @@ class _MoodCheckInCardState extends State<MoodCheckInCard> {
                   Expanded(
                     child: Text(
                       [
-                        'Checked in at ${DateFormat.jm().format(today.recordedAt.toLocal())}',
-                        if (today.tags.isNotEmpty) today.tags.join(', '),
+                        'Checked in at {time}'.trArgs({
+                          'time': DateFormat.jm()
+                              .format(today.recordedAt.toLocal()),
+                        }),
+                        if (today.tags.isNotEmpty)
+                          today.tags.map((t) => t.tr).join(', '),
                         if (today.note != null) '"${today.note}"',
                       ].join('\n'),
                       style: TextStyle(
@@ -130,7 +137,7 @@ class _MoodButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: mood.label,
+      label: mood.localizedLabel,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -149,7 +156,7 @@ class _MoodButton extends StatelessWidget {
                 child: Text(mood.emoji, style: const TextStyle(fontSize: 26)),
               ),
               const SizedBox(height: 4),
-              Text(mood.label,
+              Text(mood.localizedLabel,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -242,21 +249,24 @@ class _MoodDetailsSheetState extends State<_MoodDetailsSheet> {
             Row(children: [
               Text(widget.mood.emoji, style: const TextStyle(fontSize: 32)),
               const SizedBox(width: 10),
-              Text('Feeling ${widget.mood.label.toLowerCase()}',
+              Text(
+                  'Feeling {mood}'.trArgs({
+                    'mood': widget.mood.localizedLabel.toLowerCase(),
+                  }),
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   )),
             ]),
-            const SectionLabel('Anything else? (optional)'),
+            SectionLabel('Anything else? (optional)'.tr),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 for (final tag in [...Mood.suggestedTags, ...Mood.cycleTags])
                   FilterChip(
-                    label: Text(tag),
+                    label: Text(tag.tr),
                     selected: _tags.contains(tag),
                     onSelected: (on) => setState(
                         () => on ? _tags.add(tag) : _tags.remove(tag)),
@@ -270,13 +280,13 @@ class _MoodDetailsSheetState extends State<_MoodDetailsSheet> {
               minLines: 1,
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(labelText: 'Add a note'),
+              decoration: InputDecoration(labelText: 'Add a note'.tr),
             ),
             const SizedBox(height: 6),
             ElevatedButton(
               onPressed: () => Navigator.pop(
                   context, _MoodDetails(_note.text, _tags.toList())),
-              child: const Text('Save check-in'),
+              child: Text('Save check-in'.tr),
             ),
           ],
         ),

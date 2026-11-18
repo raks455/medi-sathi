@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_info.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/external_links.dart';
 import '../../../../core/widgets/info_widgets.dart';
@@ -48,24 +49,25 @@ class _FeedbackPageState extends State<FeedbackPage> {
       (f) => showDialog<void>(
         context: context,
         builder: (d) => AlertDialog(
-          title: const Text('Could not send'),
-          content: Text('${f.message}\n\nYou can send it by email instead.'),
+          title: Text('Could not send'.tr),
+          content: Text('{error}\n\nYou can send it by email instead.'
+              .trArgs({'error': f.message})),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(d),
-                child: const Text('Cancel')),
+                child: Text('Cancel'.tr)),
             TextButton(
               onPressed: () {
                 Navigator.pop(d);
                 _sendByEmail();
               },
-              child: const Text('Use email'),
+              child: Text('Use email'.tr),
             ),
           ],
         ),
       ),
       (_) {
-        showInfoSnack(context, 'Thank you! Your feedback was sent.');
+        showInfoSnack(context, 'Thank you! Your feedback was sent.'.tr);
         context.pop();
       },
     );
@@ -86,7 +88,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
       body: body.toString(),
     );
     if (!ok && mounted) {
-      showInfoSnack(context, 'No email app found. Write to ${AppInfo.feedbackEmail}',
+      showInfoSnack(
+          context,
+          'No email app found. Write to {email}'
+              .trArgs({'email': AppInfo.feedbackEmail}),
           error: true);
     }
   }
@@ -95,8 +100,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Send feedback',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Send feedback'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: Form(
         key: _formKey,
@@ -104,8 +109,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
           children: [
             Text(
-              'We read every message. Tell us what you like, what is '
-              'confusing, or what we should build next.',
+              ('We read every message. Tell us what you like, what is '
+                      'confusing, or what we should build next.')
+                  .tr,
               style: TextStyle(height: 1.45, color: AppColors.textSecondary),
             ),
             const SectionLabel('How do you like MediSathi?'),
@@ -114,7 +120,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
               children: [
                 for (var star = 1; star <= 5; star++)
                   IconButton(
-                    tooltip: '$star star${star == 1 ? '' : 's'}',
+                    tooltip: star == 1
+                        ? '1 star'.tr
+                        : '{n} stars'.trArgs({'n': star}),
                     iconSize: 36,
                     onPressed: () => setState(
                         () => _rating = _rating == star ? 0 : star),
@@ -136,7 +144,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               children: [
                 for (final topic in _topics)
                   ChoiceChip(
-                    label: Text(topic),
+                    label: Text(topic.tr),
                     selected: _topic == topic,
                     showCheckmark: false,
                     onSelected: (_) => setState(() => _topic = topic),
@@ -150,12 +158,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
               maxLines: 10,
               maxLength: 1000,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Write your feedback here',
+              decoration: InputDecoration(
+                hintText: 'Write your feedback here'.tr,
                 alignLabelWithHint: true,
               ),
               validator: (v) => (v ?? '').trim().length < 5
-                  ? 'Please write a few words'
+                  ? 'Please write a few words'.tr
                   : null,
             ),
             const SizedBox(height: 16),
@@ -169,12 +177,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           strokeWidth: 2.5, color: Colors.white),
                     )
                   : const Icon(Icons.send_rounded),
-              label: const Text('Send feedback'),
+              label: Text('Send feedback'.tr),
             ),
             const SizedBox(height: 10),
             Text(
-              'Your app version and phone type are sent with your message to '
-              'help us fix problems.',
+              ('Your app version and phone type are sent with your message '
+                      'to help us fix problems.')
+                  .tr,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
             ),

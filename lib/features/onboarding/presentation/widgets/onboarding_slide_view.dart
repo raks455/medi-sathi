@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/onboarding_slide.dart';
 
@@ -26,7 +27,7 @@ class OnboardingSlideView extends StatelessWidget {
           _Illustration(icon: _icon),
           const SizedBox(height: 40),
           Text(
-            slide.title,
+            slide.title.tr,
             textAlign: TextAlign.center,
             style: textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
@@ -35,7 +36,7 @@ class OnboardingSlideView extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            slide.description,
+            slide.description.tr,
             textAlign: TextAlign.center,
             style: textTheme.bodyLarge?.copyWith(
               color: AppColors.textSecondary,

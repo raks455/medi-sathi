@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/sign_in_page.dart';
 import '../../features/auth/presentation/pages/sign_up_page.dart';
+import '../../features/habits/habit_pages.dart';
+import '../../features/habits/habits.dart';
 import '../../features/health_records/domain/health_record.dart';
 import '../../features/health_records/presentation/cubit/health_records_cubit.dart';
 import '../../features/health_records/presentation/pages/health_records_page.dart';
@@ -122,6 +124,20 @@ class AppRouter {
         ),
       ),
       GoRoute(
+        path: AppRoutes.water,
+        builder: (context, state) => BlocProvider.value(
+          value: sl<WaterCubit>()..load(),
+          child: const WaterTrackerPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.fasting,
+        builder: (context, state) => BlocProvider.value(
+          value: sl<FastingCubit>()..load(),
+          child: const FastingTrackerPage(),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.periodTracker,
         builder: (context, state) => BlocProvider(
           create: (_) => sl<CycleCubit>()..load(),
@@ -162,6 +178,8 @@ class AppRouter {
             ),
             BlocProvider(create: (_) => sl<MoodCubit>()..load()),
             BlocProvider(create: (_) => sl<ProfileCubit>()..load()),
+            BlocProvider.value(value: sl<WaterCubit>()..load()),
+            BlocProvider.value(value: sl<FastingCubit>()..load()),
           ],
           child: MainShell(
             navigationShell: navigationShell,

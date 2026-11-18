@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_logo.dart';
 
@@ -15,11 +16,11 @@ class AuthHeader extends StatelessWidget {
       children: [
         const AppLogo(size: 104),
         const SizedBox(height: 24),
-        Text(title,
+        Text(title.tr,
             textAlign: TextAlign.center,
             style: t.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        Text(subtitle,
+        Text(subtitle.tr,
             textAlign: TextAlign.center,
             style: t.bodyLarge?.copyWith(color: AppColors.textSecondary)),
       ],

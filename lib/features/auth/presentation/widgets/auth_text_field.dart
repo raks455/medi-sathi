@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -34,7 +36,7 @@ class AuthTextField extends StatelessWidget {
       autofillHints: autofillHints,
       textCapitalization: textCapitalization,
       validator: validator,
-      decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),
+      decoration: InputDecoration(labelText: label.tr, prefixIcon: Icon(icon)),
     );
   }
 }

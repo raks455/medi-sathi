@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_colors.dart';
 
 /// A rounded card with a border, used to group rows on the info screens.
@@ -33,7 +34,8 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-/// A small uppercase heading above a group of rows.
+/// A small uppercase heading above a group of rows. [text] is the English
+/// text: it is translated here, so callers can stay `const`.
 class SectionLabel extends StatelessWidget {
   final String text;
   const SectionLabel(this.text, {super.key});
@@ -43,7 +45,7 @@ class SectionLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
       child: Text(
-        text.toUpperCase(),
+        text.tr.toUpperCase(),
         style: TextStyle(
           fontSize: 12,
           letterSpacing: 0.8,
@@ -55,7 +57,9 @@ class SectionLabel extends StatelessWidget {
   }
 }
 
-/// A tappable row with a tinted leading icon.
+/// A tappable row with a tinted leading icon. [title] and [subtitle] are
+/// translated here; text without a translation (a name, an e-mail address)
+/// is shown as it is.
 class InfoTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -90,7 +94,7 @@ class InfoTile extends StatelessWidget {
         child: Icon(icon, size: 21, color: accent),
       ),
       title: Text(
-        title,
+        title.tr,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           color: color ?? AppColors.textPrimary,
@@ -98,7 +102,7 @@ class InfoTile extends StatelessWidget {
       ),
       subtitle: subtitle == null
           ? null
-          : Text(subtitle!, style: TextStyle(color: AppColors.textSecondary)),
+          : Text(subtitle!.tr, style: TextStyle(color: AppColors.textSecondary)),
       trailing: trailing ??
           (onTap == null
               ? null

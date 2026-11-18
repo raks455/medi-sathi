@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../notification/presentation/widgets/reminder_alert_dialog.dart';
 import '../../../app_tour/app_tour.dart';
 import '../../../app_tour/app_tour_service.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -50,9 +54,22 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   StatefulNavigationShell get navigationShell => widget.navigationShell;
 
+  StreamSubscription<ReminderAlert>? _alerts;
+
+  @override
+  void dispose() {
+    _alerts?.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    // A reminder while the app is open is also shown on the screen, with
+    // a vibration: not everyone hears the notification sound.
+    _alerts = widget.pushService.onAlert.listen((alert) {
+      if (mounted) showReminderAlert(context, alert);
+    });
     // First time in the signed-in app: show the tour once the dashboard has
     // had a moment to load.
     if (!widget.tour.completed) {
@@ -94,6 +111,8 @@ class _MainShellState extends State<MainShell> {
         } else if (state.status == AuthStatus.authenticated) {
           // Signed-in user confirmed: make sure this phone gets reminders.
           widget.pushService.registerDevice();
+          // ... in the language the app is used in.
+          context.read<LanguageCubit>().syncWithServer();
         }
       },
       // Not a Scaffold on purpose: each tab has its own, and snackbars only
@@ -118,25 +137,25 @@ class _MainShellState extends State<MainShell> {
                   key: AppTourKeys.dashboardTab,
                   icon: const Icon(Icons.dashboard_outlined),
                   selectedIcon: const Icon(Icons.dashboard_rounded),
-                  label: 'Dashboard',
+                  label: 'Dashboard'.tr,
                 ),
                 NavigationDestination(
                   key: AppTourKeys.medicineTab,
                   icon: const Icon(Icons.medication_outlined),
                   selectedIcon: const Icon(Icons.medication_rounded),
-                  label: 'Medicine',
+                  label: 'Medicine'.tr,
                 ),
                 NavigationDestination(
                   key: AppTourKeys.historyTab,
                   icon: const Icon(Icons.insights_outlined),
                   selectedIcon: const Icon(Icons.insights_rounded),
-                  label: 'History',
+                  label: 'History'.tr,
                 ),
                 NavigationDestination(
                   key: AppTourKeys.profileTab,
                   icon: const Icon(Icons.person_outline_rounded),
                   selectedIcon: const Icon(Icons.person_rounded),
-                  label: 'Profile',
+                  label: 'Profile'.tr,
                 ),
               ],
             ),

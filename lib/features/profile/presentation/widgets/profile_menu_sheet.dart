@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/text_size_cubit.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../core/widgets/info_widgets.dart';
 
@@ -68,13 +70,18 @@ class _ProfileMenuSheet extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
           Text(
-            'Menu',
+            'Menu'.tr,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
             ),
           ),
+          // Named in both languages so it can always be found.
+          const SectionLabel('Language · भाषा'),
+          const LanguageSelector(),
+          const SectionLabel('Text size'),
+          const TextSizeSelector(),
           const SectionLabel('Appearance'),
           const ThemeModeSelector(),
           for (final (i, group) in _groups.indexed) ...[
@@ -133,21 +140,21 @@ class ThemeModeSelector extends StatelessWidget {
             side: BorderSide(color: AppColors.tertiary, width: 1.2),
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
-          segments: const [
+          segments: [
             ButtonSegment(
               value: ThemeMode.system,
-              icon: Icon(Icons.brightness_auto_rounded),
-              label: Text('System'),
+              icon: const Icon(Icons.brightness_auto_rounded),
+              label: Text('System'.tr),
             ),
             ButtonSegment(
               value: ThemeMode.light,
-              icon: Icon(Icons.light_mode_rounded),
-              label: Text('Light'),
+              icon: const Icon(Icons.light_mode_rounded),
+              label: Text('Light'.tr),
             ),
             ButtonSegment(
               value: ThemeMode.dark,
-              icon: Icon(Icons.dark_mode_rounded),
-              label: Text('Dark'),
+              icon: const Icon(Icons.dark_mode_rounded),
+              label: Text('Dark'.tr),
             ),
           ],
           selected: {mode},

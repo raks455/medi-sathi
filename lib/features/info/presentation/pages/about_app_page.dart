@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/constants/app_info.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_logo.dart';
@@ -44,8 +45,8 @@ class _AboutAppPageState extends State<AboutAppPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About the app',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('About the app'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -63,7 +64,9 @@ class _AboutAppPageState extends State<AboutAppPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            _version == null ? AppInfo.tagline : 'Version $_version',
+            _version == null
+                ? AppInfo.tagline.tr
+                : 'Version {version}'.trArgs({'version': _version}),
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary),
           ),
@@ -86,9 +89,11 @@ class _AboutAppPageState extends State<AboutAppPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '${AppInfo.appName} helps you remember and track your '
-                      'medicines. It is not medical advice. Always follow '
-                      'your doctor\'s or pharmacist\'s instructions.',
+                      ('{app} helps you remember and track your '
+                              'medicines. It is not medical advice. Always '
+                              'follow your doctor\'s or pharmacist\'s '
+                              'instructions.')
+                          .trArgs({'app': AppInfo.appName}),
                       style: TextStyle(
                           height: 1.45, color: AppColors.textPrimary),
                     ),

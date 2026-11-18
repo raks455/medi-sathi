@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/onboarding_slide.dart';
 import '../../domain/repositories/onboarding_repository.dart';
 import '../datasources/onboarding_local_datasource.dart';
@@ -13,7 +14,7 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
     try {
       return Right(await local.isCompleted());
     } catch (_) {
-      return const Left(CacheFailure('Could not read onboarding status'));
+      return Left(CacheFailure('Could not read onboarding status'.tr));
     }
   }
 
@@ -23,7 +24,7 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
       await local.markCompleted();
       return Right(unit);
     } catch (_) {
-      return const Left(CacheFailure('Could not save onboarding status'));
+      return Left(CacheFailure('Could not save onboarding status'.tr));
     }
   }
 

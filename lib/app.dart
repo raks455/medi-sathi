@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/di/injection_container.dart';
+import 'core/l10n/l10n.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/text_size_cubit.dart';
 import 'core/theme/theme_cubit.dart';
 
 class MediSathiApp extends StatelessWidget {
@@ -12,8 +15,12 @@ class MediSathiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<ThemeCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<ThemeCubit>()),
+        BlocProvider(create: (_) => sl<LanguageCubit>()),
+        BlocProvider(create: (_) => sl<TextSizeCubit>()),
+      ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, mode) => MaterialApp.router(
           title: 'MediSathi',
@@ -21,8 +28,19 @@ class MediSathiApp extends StatelessWidget {
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
           themeMode: mode,
+          // Date pickers, time formats and the system's own button labels.
+          locale: context.watch<LanguageCubit>().state.locale,
+          supportedLocales: [for (final l in AppLang.values) l.locale],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           routerConfig: AppRouter.router,
-          builder: (context, child) => PaletteSync(child: child!),
+          builder: (context, child) => MediaQuery(
+            // The user's text size, on top of the phone's own setting.
+            data: MediaQuery.of(context).copyWith(
+              textScaler:
+                  context.watch<TextSizeCubit>().state.scaler(context),
+            ),
+            child: LanguageSync(child: PaletteSync(child: child!)),
+          ),
         ),
       ),
     );

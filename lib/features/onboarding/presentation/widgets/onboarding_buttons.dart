@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 /// "Next" on slides 1..n-1.
 class OnboardingNextButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -7,7 +9,7 @@ class OnboardingNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(onPressed: onPressed, child: const Text('Next'));
+    return ElevatedButton(onPressed: onPressed, child: Text('Next'.tr));
   }
 }
 
@@ -26,11 +28,11 @@ class OnboardingAuthButtons extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ElevatedButton(onPressed: onSignUp, child: const Text('Create account')),
+        ElevatedButton(onPressed: onSignUp, child: Text('Create account'.tr)),
         const SizedBox(height: 12),
         OutlinedButton(
           onPressed: onSignIn,
-          child: const Text('I already have an account'),
+          child: Text('I already have an account'.tr),
         ),
       ],
     );

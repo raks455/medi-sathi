@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_info.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/external_links.dart';
@@ -60,21 +61,29 @@ class _ProfilePageState extends State<ProfilePage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Delete your account?'),
+        title: Text('Delete your account?'.tr),
         content: Text(
-          'To delete your account, send us an email from the address you '
-          'signed up with${email.isEmpty ? '' : ' ($email)'}. We will delete '
-          'your account and all its data - medicines, health records, '
-          'readings and trackers - within 30 days and reply to confirm.',
+          email.isEmpty
+              ? ('To delete your account, send us an email from the address '
+                      'you signed up with. We will delete your account and '
+                      'all its data - medicines, health records, readings '
+                      'and trackers - within 30 days and reply to confirm.')
+                  .tr
+              : ('To delete your account, send us an email from the address '
+                      'you signed up with ({email}). We will delete your '
+                      'account and all its data - medicines, health records, '
+                      'readings and trackers - within 30 days and reply to '
+                      'confirm.')
+                  .trArgs({'email': email}),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(d, false),
-              child: const Text('Cancel')),
+              child: Text('Cancel'.tr)),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.pop(d, true),
-            child: const Text('Write email'),
+            child: Text('Write email'.tr),
           ),
         ],
       ),
@@ -89,8 +98,8 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!sent && mounted) {
       showInfoSnack(
           context,
-          'No email app found. Email ${AppInfo.supportEmail} from $email '
-          'to request deletion.',
+          'No email app found. Email {support} from {email} to request deletion.'
+              .trArgs({'support': AppInfo.supportEmail, 'email': email}),
           error: true);
     }
   }
@@ -100,19 +109,20 @@ class _ProfilePageState extends State<ProfilePage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Sign out?'),
-        content: const Text(
-            'You will stop getting medicine reminders on this phone until '
-            'you sign in again.'),
+        title: Text('Sign out?'.tr),
+        content: Text(
+            ('You will stop getting medicine reminders on this phone until '
+                    'you sign in again.')
+                .tr),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Sign out'),
+            child: Text('Sign out'.tr),
           ),
         ],
       ),
@@ -144,12 +154,12 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Profile'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             key: AppTourKeys.profileMenuButton,
-            tooltip: 'Menu',
+            tooltip: 'Menu'.tr,
             icon: const Icon(Icons.menu_rounded),
             onPressed: _openMenu,
           ),
@@ -243,7 +253,7 @@ class _UserCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name.isEmpty ? 'MediSathi user' : name,
+                  name.isEmpty ? 'MediSathi user'.tr : name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -267,7 +277,7 @@ class _UserCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Edit profile',
+            tooltip: 'Edit profile'.tr,
             onPressed: onEdit,
             icon: const Icon(Icons.edit_rounded, color: Colors.white),
           ),
@@ -307,13 +317,20 @@ class _AboutMeCard extends StatelessWidget {
               ),
       ]);
     }
+    // Suggested diseases and allergies have a translation; ones the user
+    // typed are shown as typed.
     String list(List<String> items) =>
-        items.isEmpty ? 'None added' : items.join(', ');
+        items.isEmpty ? 'None added'.tr : items.map((s) => s.tr).join(', ');
+    // Titles and plain values are translated by InfoTile.
     final rows = <(IconData, String, String)>[
       (
         Icons.cake_outlined,
         'Age',
-        p.age == null ? 'Not set' : '${p.age} years',
+        p.age == null
+            ? 'Not set'
+            : p.age == 1
+                ? '1 year'.tr
+                : '{n} years'.trArgs({'n': p.age}),
       ),
       (Icons.wc_rounded, 'Gender', p.gender?.label ?? 'Not set'),
       (Icons.bloodtype_outlined, 'Blood group', p.bloodGroup ?? 'Not set'),
@@ -334,8 +351,9 @@ class _AboutMeCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
           child: Text(
-            'The period and pregnancy trackers are shown when your gender '
-            'is set to female.',
+            ('The period and pregnancy trackers are shown when your gender '
+                    'is set to female.')
+                .tr,
             style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
           ),
         ),
@@ -363,6 +381,12 @@ class _HealthGrid extends StatelessWidget {
     (Icons.monitor_weight_rounded, 'Weight & vitals',
         'Weight, height, BMI, blood pressure', AppRoutes.vitals,
         Color(0xFF4E9A7B)),
+    (Icons.local_drink_rounded, 'Water',
+        'How much you drink each day', AppRoutes.water,
+        Color(0xFF2E86C1)),
+    (Icons.hourglass_bottom_rounded, 'Fasting',
+        'Time your fasting and eating hours', AppRoutes.fasting,
+        Color(0xFF8E6BBF)),
     (Icons.water_drop_rounded, 'Period tracker',
         'Cycle calendar & predictions', AppRoutes.periodTracker,
         Color(0xFFE5637A)),
@@ -408,14 +432,14 @@ class _HealthGrid extends StatelessWidget {
                             child: Icon(icon, color: color),
                           ),
                           const SizedBox(height: 12),
-                          Text(title,
+                          Text(title.tr,
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 15,
                                 color: AppColors.textPrimary,
                               )),
                           const SizedBox(height: 4),
-                          Text(subtitle,
+                          Text(subtitle.tr,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(

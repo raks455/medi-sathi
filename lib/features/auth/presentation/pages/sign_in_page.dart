@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
@@ -51,7 +52,7 @@ class _SignInPageState extends State<SignInPage> {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
-              content: Text(state.message ?? 'Something went wrong'),
+              content: Text(state.message ?? 'Something went wrong'.tr),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ));
@@ -61,72 +62,84 @@ class _SignInPageState extends State<SignInPage> {
         final loading = state.status == AuthStatus.loading;
         return Scaffold(
           body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const AuthHeader(
-                        title: 'Welcome back',
-                        subtitle: 'Sign in to keep track of your medicines',
-                      ),
-                      const SizedBox(height: 36),
-                      AuthTextField(
-                        controller: _email,
-                        label: 'Email',
-                        icon: Icons.mail_outline_rounded,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        enabled: !loading,
-                        validator: Validators.email,
-                      ),
-                      const SizedBox(height: 16),
-                      PasswordField(
-                        controller: _password,
-                        enabled: !loading,
-                        autofillHints: const [AutofillHints.password],
-                        validator: Validators.loginPassword,
-                        onSubmitted: _submit,
-                      ),
-                      const SizedBox(height: 28),
-                      AuthSubmitButton(
-                        label: 'Sign in',
-                        isLoading: loading && !state.viaGoogle,
-                        onPressed: _submit,
-                      ),
-                      const SizedBox(height: 20),
-                      const OrDivider(),
-                      const SizedBox(height: 20),
-                      GoogleSignInButton(
-                        isLoading: loading && state.viaGoogle,
-                        onPressed: loading
-                            ? null
-                            : () => context
-                                .read<AuthBloc>()
-                                .add(const GoogleSignInRequested()),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
+              children: [
+                Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('New to MediSathi?',
-                              style: TextStyle(color: AppColors.textSecondary)),
-                          TextButton(
-                            onPressed:
-                                loading ? null : () => context.go(AppRoutes.signUp),
-                            child: const Text('Create account'),
+                          const AuthHeader(
+                            title: 'Welcome back',
+                            subtitle: 'Sign in to keep track of your medicines',
                           ),
+                          const SizedBox(height: 36),
+                          AuthTextField(
+                            controller: _email,
+                            label: 'Email',
+                            icon: Icons.mail_outline_rounded,
+                            keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [AutofillHints.email],
+                            enabled: !loading,
+                            validator: Validators.email,
+                          ),
+                          const SizedBox(height: 16),
+                          PasswordField(
+                            controller: _password,
+                            enabled: !loading,
+                            autofillHints: const [AutofillHints.password],
+                            validator: Validators.loginPassword,
+                            onSubmitted: _submit,
+                          ),
+                          const SizedBox(height: 28),
+                          AuthSubmitButton(
+                            label: 'Sign in',
+                            isLoading: loading && !state.viaGoogle,
+                            onPressed: _submit,
+                          ),
+                          const SizedBox(height: 20),
+                          const OrDivider(),
+                          const SizedBox(height: 20),
+                          GoogleSignInButton(
+                            isLoading: loading && state.viaGoogle,
+                            onPressed: loading
+                                ? null
+                                : () => context
+                                    .read<AuthBloc>()
+                                    .add(const GoogleSignInRequested()),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('New to MediSathi?'.tr,
+                                  style: TextStyle(color: AppColors.textSecondary)),
+                              TextButton(
+                                onPressed:
+                                    loading ? null : () => context.go(AppRoutes.signUp),
+                                child: Text('Create account'.tr),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const LegalNotice(),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      const LegalNotice(),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                // Lets the user pick a language before signing in.
+                const Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 4, right: 8),
+                    child: LanguageButton(),
+                  ),
+                ),
+              ],
             ),
           ),
         );

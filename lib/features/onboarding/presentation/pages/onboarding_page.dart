@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_logo.dart';
@@ -67,30 +68,45 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Flexible: the name gives way on a narrow phone
+                        // instead of pushing the buttons off the screen.
+                        Flexible(
+                          child: Row(
+                            children: [
+                              AppLogo(size: 36, shadow: false),
+                              SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'MediSathi',
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.fade,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            AppLogo(size: 36, shadow: false),
-                            SizedBox(width: 8),
-                            Text(
-                              'MediSathi',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary,
+                            const LanguageButton(),
+                            AnimatedOpacity(
+                              opacity: state.isLast ? 0 : 1,
+                              duration: const Duration(milliseconds: 200),
+                              child: IgnorePointer(
+                                ignoring: state.isLast,
+                                child: TextButton(
+                                  onPressed: () => _goTo(lastIndex),
+                                  child: Text('Skip'.tr),
+                                ),
                               ),
                             ),
                           ],
-                        ),
-                        AnimatedOpacity(
-                          opacity: state.isLast ? 0 : 1,
-                          duration: const Duration(milliseconds: 200),
-                          child: IgnorePointer(
-                            ignoring: state.isLast,
-                            child: TextButton(
-                              onPressed: () => _goTo(lastIndex),
-                              child: const Text('Skip'),
-                            ),
-                          ),
                         ),
                       ],
                     ),

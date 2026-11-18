@@ -38,6 +38,7 @@ class DoseScheduleModel {
       status: DoseStatus.fromApi(json['status'] as String),
       respondedAt:
           respondedAt is String ? DateTime.tryParse(respondedAt) : null,
+      photoUrl: json['photo_url'] as String?,
     );
   }
 }

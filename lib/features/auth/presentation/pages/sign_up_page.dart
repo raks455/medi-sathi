@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
@@ -69,7 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
-              content: Text(state.message ?? 'Something went wrong'),
+              content: Text(state.message ?? 'Something went wrong'.tr),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ));
@@ -79,98 +80,111 @@ class _SignUpPageState extends State<SignUpPage> {
         final loading = state.status == AuthStatus.loading;
         return Scaffold(
           body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const AuthHeader(
-                        title: 'Create your account',
-                        subtitle: 'Start your journey to never missing a dose',
-                      ),
-                      const SizedBox(height: 32),
-                      AuthTextField(
-                        controller: _name,
-                        label: 'Full name',
-                        icon: Icons.person_outline_rounded,
-                        textCapitalization: TextCapitalization.words,
-                        autofillHints: const [AutofillHints.name],
-                        enabled: !loading,
-                        validator: (v) => Validators.requiredField(v, 'Full name'),
-                      ),
-                      const SizedBox(height: 16),
-                      AuthTextField(
-                        controller: _email,
-                        label: 'Email',
-                        icon: Icons.mail_outline_rounded,
-                        keyboardType: TextInputType.emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        enabled: !loading,
-                        validator: Validators.email,
-                      ),
-                      const SizedBox(height: 16),
-                      PasswordField(
-                        controller: _password,
-                        enabled: !loading,
-                        textInputAction: TextInputAction.next,
-                        validator: Validators.newPassword,
-                      ),
-                      const SizedBox(height: 16),
-                      PasswordField(
-                        controller: _confirm,
-                        label: 'Confirm password',
-                        enabled: !loading,
-                        validator: (v) =>
-                            Validators.confirmPassword(v, _password.text),
-                        onSubmitted: _submit,
-                      ),
-                      const SizedBox(height: 16),
-                      TermsConsent(
-                        value: _agreedToTerms,
-                        showError: _showTermsError,
-                        enabled: !loading,
-                        onChanged: (v) => setState(() => _agreedToTerms = v),
-                      ),
-                      const SizedBox(height: 20),
-                      AuthSubmitButton(
-                        label: 'Create account',
-                        isLoading: loading && !state.viaGoogle,
-                        onPressed: _submit,
-                      ),
-                      const SizedBox(height: 20),
-                      const OrDivider(),
-                      const SizedBox(height: 20),
-                      GoogleSignInButton(
-                        isLoading: loading && state.viaGoogle,
-                        onPressed: loading
-                            ? null
-                            : () {
-                                if (!_checkConsent()) return;
-                                context
-                                    .read<AuthBloc>()
-                                    .add(const GoogleSignInRequested());
-                              },
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
+              children: [
+                Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('Already have an account?',
-                              style: TextStyle(color: AppColors.textSecondary)),
-                          TextButton(
-                            onPressed:
-                                loading ? null : () => context.go(AppRoutes.signIn),
-                            child: const Text('Sign in'),
+                          const AuthHeader(
+                            title: 'Create your account',
+                            subtitle: 'Start your journey to never missing a dose',
+                          ),
+                          const SizedBox(height: 32),
+                          AuthTextField(
+                            controller: _name,
+                            label: 'Full name',
+                            icon: Icons.person_outline_rounded,
+                            textCapitalization: TextCapitalization.words,
+                            autofillHints: const [AutofillHints.name],
+                            enabled: !loading,
+                            validator: (v) =>
+                                Validators.requiredField(v, 'Full name'.tr),
+                          ),
+                          const SizedBox(height: 16),
+                          AuthTextField(
+                            controller: _email,
+                            label: 'Email',
+                            icon: Icons.mail_outline_rounded,
+                            keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [AutofillHints.email],
+                            enabled: !loading,
+                            validator: Validators.email,
+                          ),
+                          const SizedBox(height: 16),
+                          PasswordField(
+                            controller: _password,
+                            enabled: !loading,
+                            textInputAction: TextInputAction.next,
+                            validator: Validators.newPassword,
+                          ),
+                          const SizedBox(height: 16),
+                          PasswordField(
+                            controller: _confirm,
+                            label: 'Confirm password',
+                            enabled: !loading,
+                            validator: (v) =>
+                                Validators.confirmPassword(v, _password.text),
+                            onSubmitted: _submit,
+                          ),
+                          const SizedBox(height: 16),
+                          TermsConsent(
+                            value: _agreedToTerms,
+                            showError: _showTermsError,
+                            enabled: !loading,
+                            onChanged: (v) => setState(() => _agreedToTerms = v),
+                          ),
+                          const SizedBox(height: 20),
+                          AuthSubmitButton(
+                            label: 'Create account',
+                            isLoading: loading && !state.viaGoogle,
+                            onPressed: _submit,
+                          ),
+                          const SizedBox(height: 20),
+                          const OrDivider(),
+                          const SizedBox(height: 20),
+                          GoogleSignInButton(
+                            isLoading: loading && state.viaGoogle,
+                            onPressed: loading
+                                ? null
+                                : () {
+                                    if (!_checkConsent()) return;
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(const GoogleSignInRequested());
+                                  },
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Already have an account?'.tr,
+                                  style: TextStyle(color: AppColors.textSecondary)),
+                              TextButton(
+                                onPressed:
+                                    loading ? null : () => context.go(AppRoutes.signIn),
+                                child: Text('Sign in'.tr),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                // Lets the user pick a language before signing in.
+                const Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 4, right: 8),
+                    child: LanguageButton(),
+                  ),
+                ),
+              ],
             ),
           ),
         );

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/womens_health.dart';
@@ -13,11 +14,11 @@ const _fertileColor = Color(0xFF66A3BF);
 const _ovulationColor = Color(0xFF3368A0);
 
 String _phaseLabel(String? phase) => switch (phase) {
-      'menstrual' => 'Period',
-      'follicular' => 'Follicular phase',
-      'fertile' => 'Fertile window',
-      'ovulation' => 'Ovulation day',
-      'luteal' => 'Luteal phase',
+      'menstrual' => 'Period'.tr,
+      'follicular' => 'Follicular phase'.tr,
+      'fertile' => 'Fertile window'.tr,
+      'ovulation' => 'Ovulation day'.tr,
+      'luteal' => 'Luteal phase'.tr,
       _ => '',
     };
 
@@ -54,7 +55,7 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
       notes: result.notes,
     );
     if (mounted) {
-      showInfoSnack(context, error ?? 'Saved', error: error != null);
+      showInfoSnack(context, error ?? 'Saved'.tr, error: error != null);
     }
   }
 
@@ -69,18 +70,18 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Delete this period?'),
+        title: Text('Delete this period?'.tr),
         content: Text(
-            'The period starting ${DateFormat.yMMMd().format(p.startDate)} '
-            'will be removed and predictions recalculated.'),
+            'The period starting {date} will be removed and predictions recalculated.'
+                .trArgs({'date': DateFormat.yMMMd().format(p.startDate)})),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(d, false),
-              child: const Text('Cancel')),
+              child: Text('Cancel'.tr)),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.pop(d, true),
-            child: const Text('Delete'),
+            child: Text('Delete'.tr),
           ),
         ],
       ),
@@ -94,14 +95,14 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Period tracker',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Period tracker'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _editPeriod(start: _today),
         backgroundColor: _periodColor,
         icon: const Icon(Icons.water_drop_rounded),
-        label: const Text('Log period'),
+        label: Text('Log period'.tr),
       ),
       body: BlocBuilder<CycleCubit, CycleState>(
         builder: (context, state) {
@@ -133,11 +134,11 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
                 const SizedBox(height: 12),
                 _dayPanel(o),
                 if (state.settings != null) ...[
-                  const SectionLabel('Reminders'),
+                  SectionLabel('Reminders'.tr),
                   _RemindersCard(settings: state.settings!),
                 ],
                 if (o.periods.isNotEmpty) ...[
-                  const SectionLabel('History'),
+                  SectionLabel('History'.tr),
                   InfoCard(children: [
                     for (final (i, p) in o.periods.indexed) ...[
                       if (i > 0) const InfoDivider(),
@@ -146,7 +147,10 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
                             color: _periodColor),
                         title: Text(
                           p.ongoing
-                              ? '${DateFormat.yMMMd().format(p.startDate)} – now'
+                              ? '{date} – now'.trArgs({
+                                  'date':
+                                      DateFormat.yMMMd().format(p.startDate),
+                                })
                               : '${DateFormat.MMMd().format(p.startDate)} – '
                                   '${DateFormat.yMMMd().format(p.endDate!)}',
                           style: TextStyle(
@@ -155,8 +159,8 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
                         ),
                         subtitle: Text(
                           [
-                            '${p.lengthDays(_today)} days',
-                            if (p.flow != null) '${p.flow!.label} flow',
+                            '{n} days'.trArgs({'n': p.lengthDays(_today)}),
+                            if (p.flow != null) p.flow!.flowLabel,
                             if (p.notes != null) p.notes!,
                           ].join(' · '),
                           style: TextStyle(color: AppColors.textSecondary),
@@ -169,7 +173,8 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
                 const SizedBox(height: 12),
                 Text(
                   'Predictions are estimates based on your logged cycles. '
-                  'They are not a method of contraception.',
+                          'They are not a method of contraception.'
+                      .tr,
                   textAlign: TextAlign.center,
                   style:
                       TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -277,36 +282,37 @@ class _PeriodTrackerPageState extends State<PeriodTrackerPage> {
     final actions = <Widget>[];
     if (period != null) {
       final n = day.difference(dayOnly(period.startDate)).inDays + 1;
-      description = 'Period day $n'
-          '${period.flow != null ? ' · ${period.flow!.label} flow' : ''}';
+      description = 'Period day {n}'.trArgs({'n': n}) +
+          (period.flow != null ? ' · ${period.flow!.flowLabel}' : '');
       actions.add(OutlinedButton(
           onPressed: () => _editPeriod(period: period),
-          child: const Text('Edit')));
+          child: Text('Edit'.tr)));
       if (period.ongoing) {
         actions.add(ElevatedButton(
           onPressed: () => _endPeriodOn(period, day),
           style: ElevatedButton.styleFrom(backgroundColor: _periodColor),
-          child: const Text('Ended this day'),
+          child: Text('Ended this day'.tr),
         ));
       }
       actions.add(TextButton(
         onPressed: () => _delete(period),
         style: TextButton.styleFrom(foregroundColor: AppColors.error),
-        child: const Text('Delete'),
+        child: Text('Delete'.tr),
       ));
     } else {
       description = switch (kind) {
-        DayKind.predictedPeriod => 'Period expected',
-        DayKind.ovulation => 'Estimated ovulation – highest chance of pregnancy',
-        DayKind.fertile => 'Fertile window – higher chance of pregnancy',
-        _ => future ? 'Nothing predicted' : 'No period logged',
+        DayKind.predictedPeriod => 'Period expected'.tr,
+        DayKind.ovulation =>
+          'Estimated ovulation – highest chance of pregnancy'.tr,
+        DayKind.fertile => 'Fertile window – higher chance of pregnancy'.tr,
+        _ => future ? 'Nothing predicted'.tr : 'No period logged'.tr,
       };
       if (!future) {
         actions.add(ElevatedButton.icon(
           onPressed: () => _editPeriod(start: day),
           style: ElevatedButton.styleFrom(backgroundColor: _periodColor),
           icon: const Icon(Icons.water_drop_rounded, size: 18),
-          label: const Text('Period started'),
+          label: Text('Period started'.tr),
         ));
       }
     }
@@ -368,25 +374,28 @@ class _StatusCard extends StatelessWidget {
     String headline;
     String? sub;
     if (o.lastPeriodStart == null) {
-      headline = 'Start tracking';
-      sub = 'Log your last period to see predictions.';
+      headline = 'Start tracking'.tr;
+      sub = 'Log your last period to see predictions.'.tr;
     } else {
       final current = o.periodOn(today, today);
       final days = o.daysUntilNextPeriod ?? 0;
       if (current != null) {
-        headline =
-            'Period day ${today.difference(dayOnly(current.startDate)).inDays + 1}';
+        headline = 'Period day {n}'.trArgs({
+          'n': today.difference(dayOnly(current.startDate)).inDays + 1,
+        });
       } else if (days > 1) {
-        headline = 'Period in $days days';
+        headline = 'Period in {n} days'.trArgs({'n': days});
       } else if (days == 1) {
-        headline = 'Period expected tomorrow';
+        headline = 'Period expected tomorrow'.tr;
       } else if (days == 0) {
-        headline = 'Period expected today';
+        headline = 'Period expected today'.tr;
+      } else if (days == -1) {
+        headline = 'Period 1 day late'.tr;
       } else {
-        headline = 'Period ${-days} day${days == -1 ? '' : 's'} late';
+        headline = 'Period {n} days late'.trArgs({'n': -days});
       }
       sub = [
-        if (o.cycleDay != null) 'Cycle day ${o.cycleDay}',
+        if (o.cycleDay != null) 'Cycle day {n}'.trArgs({'n': o.cycleDay}),
         if (o.phase != null && current == null) _phaseLabel(o.phase),
       ].join(' · ');
     }
@@ -416,10 +425,12 @@ class _StatusCard extends StatelessWidget {
           ],
           const SizedBox(height: 16),
           Row(children: [
-            _Stat('Avg cycle', '${o.averageCycleLength} days'),
-            _Stat('Avg period', '${o.averagePeriodLength} days'),
+            _Stat('Avg cycle'.tr,
+                '{n} days'.trArgs({'n': o.averageCycleLength})),
+            _Stat('Avg period'.tr,
+                '{n} days'.trArgs({'n': o.averagePeriodLength})),
             _Stat(
-                'Next period',
+                'Next period'.tr,
                 o.nextPeriodStart == null
                     ? '—'
                     : DateFormat.MMMd().format(o.nextPeriodStart!)),
@@ -483,10 +494,10 @@ class _Legend extends StatelessWidget {
       spacing: 14,
       runSpacing: 6,
       children: [
-        item(dot(_periodColor), 'Period'),
-        item(dot(null, border: _periodColor), 'Predicted'),
-        item(dot(_fertileColor.withValues(alpha: 0.35)), 'Fertile'),
-        item(dot(_ovulationColor), 'Ovulation'),
+        item(dot(_periodColor), 'Period'.tr),
+        item(dot(null, border: _periodColor), 'Predicted'.tr),
+        item(dot(_fertileColor.withValues(alpha: 0.35)), 'Fertile'.tr),
+        item(dot(_ovulationColor), 'Ovulation'.tr),
       ],
     );
   }
@@ -534,11 +545,11 @@ class _PeriodSheetState extends State<_PeriodSheet> {
 
   void _submit() {
     if (_end != null && _end!.isBefore(_start)) {
-      setState(() => _error = 'The end date must be after the start date');
+      setState(() => _error = 'The end date must be after the start date'.tr);
       return;
     }
     if (_end != null && _end!.difference(_start).inDays >= 15) {
-      setState(() => _error = 'A period cannot be longer than 15 days');
+      setState(() => _error = 'A period cannot be longer than 15 days'.tr);
       return;
     }
     Navigator.pop(
@@ -559,7 +570,7 @@ class _PeriodSheetState extends State<_PeriodSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(widget.period == null ? 'Log period' : 'Edit period',
+            Text(widget.period == null ? 'Log period'.tr : 'Edit period'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -574,12 +585,13 @@ class _PeriodSheetState extends State<_PeriodSheet> {
               style:
                   OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
               icon: const Icon(Icons.play_arrow_rounded),
-              label: Text('Started ${fmt.format(_start)}'),
+              label: Text(
+                  'Started {date}'.trArgs({'date': fmt.format(_start)})),
             ),
             const SizedBox(height: 10),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text('Still ongoing',
+              title: Text('Still ongoing'.tr,
                   style: TextStyle(color: AppColors.textPrimary)),
               value: _end == null,
               onChanged: (ongoing) => setState(() => _end = ongoing
@@ -597,13 +609,14 @@ class _PeriodSheetState extends State<_PeriodSheet> {
                 style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50)),
                 icon: const Icon(Icons.stop_rounded),
-                label: Text('Ended ${fmt.format(_end!)}'),
+                label: Text(
+                    'Ended {date}'.trArgs({'date': fmt.format(_end!)})),
               ),
-            const SectionLabel('PeriodFlow'),
+            SectionLabel('PeriodFlow'.tr),
             Wrap(spacing: 8, children: [
               for (final f in PeriodFlow.values)
                 ChoiceChip(
-                  label: Text(f.label),
+                  label: Text(f.localizedLabel),
                   selected: _flow == f,
                   showCheckmark: false,
                   onSelected: (on) => setState(() => _flow = on ? f : null),
@@ -613,8 +626,8 @@ class _PeriodSheetState extends State<_PeriodSheet> {
             TextField(
               controller: _notes,
               maxLength: 500,
-              decoration: const InputDecoration(
-                  labelText: 'Notes (symptoms, cramps …)'),
+              decoration: InputDecoration(
+                  labelText: 'Notes (symptoms, cramps …)'.tr),
             ),
             if (_error != null)
               Padding(
@@ -622,7 +635,7 @@ class _PeriodSheetState extends State<_PeriodSheet> {
                 child: Text(_error!,
                     style: const TextStyle(color: AppColors.error)),
               ),
-            ElevatedButton(onPressed: _submit, child: const Text('Save')),
+            ElevatedButton(onPressed: _submit, child: Text('Save'.tr)),
           ],
         ),
       ),
@@ -651,12 +664,14 @@ class _RemindersCard extends StatelessWidget {
       SwitchListTile(
         secondary: const Icon(Icons.notifications_active_outlined,
             color: _periodColor),
-        title: Text('Period is coming', style: title),
+        title: Text('Period is coming'.tr, style: title),
         subtitle: Text(
             s.periodReminders
-                ? '${s.remindDaysBefore} day${s.remindDaysBefore == 1 ? '' : 's'} '
-                    'before, on the day, and if it is late'
-                : 'Off',
+                ? s.remindDaysBefore == 1
+                    ? '1 day before, on the day, and if it is late'.tr
+                    : '{n} days before, on the day, and if it is late'
+                        .trArgs({'n': s.remindDaysBefore})
+                : 'Off'.tr,
             style: sub),
         value: s.periodReminders,
         onChanged: (v) => _save(context, s.copyWith(periodReminders: v)),
@@ -669,7 +684,9 @@ class _RemindersCard extends StatelessWidget {
             children: [
               for (final days in const [1, 2, 3, 5])
                 ChoiceChip(
-                  label: Text('$days day${days == 1 ? '' : 's'} before'),
+                  label: Text(days == 1
+                      ? '1 day before'.tr
+                      : '{n} days before'.trArgs({'n': days})),
                   selected: s.remindDaysBefore == days,
                   showCheckmark: false,
                   onSelected: (_) =>
@@ -682,8 +699,8 @@ class _RemindersCard extends StatelessWidget {
       SwitchListTile(
         secondary:
             const Icon(Icons.spa_outlined, color: _fertileColor),
-        title: Text('Fertile window', style: title),
-        subtitle: Text('On the first fertile day', style: sub),
+        title: Text('Fertile window'.tr, style: title),
+        subtitle: Text('On the first fertile day'.tr, style: sub),
         value: s.fertileReminders,
         onChanged: (v) => _save(context, s.copyWith(fertileReminders: v)),
       ),

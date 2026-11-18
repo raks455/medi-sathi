@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../medication/presentation/utils/medication_format.dart';
+import '../../../medication/presentation/widgets/medicine_avatar.dart';
 import '../../domain/entities/dose.dart';
 
 /// One scheduled dose. With [onMark] it shows Take / Skip actions;
@@ -11,19 +13,23 @@ class DoseTile extends StatelessWidget {
   final bool isSaving;
   final void Function(DoseStatus status)? onMark;
 
+  /// Opens the medicine's details (photo, how to take it, side effects).
+  final VoidCallback? onOpen;
+
   const DoseTile({
     super.key,
     required this.dose,
     this.isSaving = false,
     this.onMark,
+    this.onOpen,
   });
 
   static (String, Color) _statusStyle(DoseStatus status) => switch (status) {
-        DoseStatus.taken => ('Taken', AppColors.success),
-        DoseStatus.skipped => ('Skipped', AppColors.textSecondary),
-        DoseStatus.missed => ('Missed', AppColors.error),
-        DoseStatus.due => ('Due now', AppColors.warning),
-        DoseStatus.upcoming => ('Upcoming', AppColors.secondary),
+        DoseStatus.taken => ('Taken'.tr, AppColors.success),
+        DoseStatus.skipped => ('Skipped'.tr, AppColors.textSecondary),
+        DoseStatus.missed => ('Missed'.tr, AppColors.error),
+        DoseStatus.due => ('Due now'.tr, AppColors.warning),
+        DoseStatus.upcoming => ('Upcoming'.tr, AppColors.secondary),
       };
 
   @override
@@ -43,15 +49,14 @@ class DoseTile extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.tertiaryLight,
-                  borderRadius: BorderRadius.circular(14),
+              // A big picture: for many users it says more than the name.
+              GestureDetector(
+                onTap: onOpen,
+                child: MedicineAvatar(
+                  medicineType: d.medicineType,
+                  photoUrl: d.photoUrl,
+                  size: d.photoUrl == null ? 44 : 60,
                 ),
-                child: Icon(MedicationFormat.typeIcon(d.medicineType),
-                    color: AppColors.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -126,13 +131,13 @@ class DoseTile extends StatelessWidget {
     if (dose.status == DoseStatus.taken) {
       return TextButton(
         onPressed: () => onMark!(DoseStatus.skipped),
-        child: const Text('Change to skipped'),
+        child: Text('Change to skipped'.tr),
       );
     }
     if (dose.status == DoseStatus.skipped) {
       return TextButton(
         onPressed: () => onMark!(DoseStatus.taken),
-        child: const Text('Change to taken'),
+        child: Text('Change to taken'.tr),
       );
     }
     return Row(
@@ -142,7 +147,7 @@ class DoseTile extends StatelessWidget {
           style: TextButton.styleFrom(
               foregroundColor: AppColors.textSecondary),
           onPressed: () => onMark!(DoseStatus.skipped),
-          child: const Text('Skip'),
+          child: Text('Skip'.tr),
         ),
         const SizedBox(width: 4),
         FilledButton.icon(
@@ -155,7 +160,7 @@ class DoseTile extends StatelessWidget {
           ),
           onPressed: () => onMark!(DoseStatus.taken),
           icon: const Icon(Icons.check_rounded, size: 18),
-          label: const Text('Take'),
+          label: Text(MedicationFormat.takeLabel(dose.medicineType)),
         ),
       ],
     );

@@ -1,17 +1,46 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/medication.dart';
 
 /// Display helpers for the API's medicine values.
 class MedicationFormat {
   MedicationFormat._();
 
+  /// English; shown with `.tr`.
   static const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  /// 'before_food' -> 'Before food'.
-  static String label(String apiValue) {
+  /// 'before_food' -> 'Before food', in the app's language.
+  static String label(String apiValue) => englishLabel(apiValue).tr;
+
+  /// 'before_food' -> 'Before food', always in English (for the PDF).
+  static String englishLabel(String apiValue) {
     final text = apiValue.replaceAll('_', ' ').trim();
     return text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
+  }
+
+  /// The word on the button that marks a dose as taken. English says "Take"
+  /// for every medicine; in Nepali a tablet is eaten, a cream is applied and
+  /// drops are put in.
+  static String takeLabel(String medicineType) {
+    if (!L10n.isNepali) return 'Take';
+    switch (medicineType) {
+      case 'tablet':
+      case 'capsule':
+      case 'syrup':
+      case 'powder':
+        return 'Take'.tr;
+      case 'cream':
+      case 'ointment':
+      case 'gel':
+      case 'patch':
+      case 'injection':
+        return 'Take (apply)'.tr;
+      case 'drops':
+        return 'Take (drops)'.tr;
+      default:
+        return 'Take (other)'.tr;
+    }
   }
 
   static IconData typeIcon(String medicineType) {
@@ -64,17 +93,17 @@ class MedicationFormat {
   }
 
   static String daysLabel(List<int>? daysOfWeek) {
-    if (daysOfWeek == null || daysOfWeek.length == 7) return 'Every day';
+    if (daysOfWeek == null || daysOfWeek.length == 7) return 'Every day'.tr;
     return daysOfWeek
         .where((d) => d >= 0 && d < 7)
-        .map((d) => dayNames[d])
+        .map((d) => dayNames[d].tr)
         .join(', ');
   }
 
   /// One-line summary: '8:00 AM, 8:00 PM · Every day' or 'As needed'.
   static String scheduleSummary(
       BuildContext context, MedicationSchedule? schedule) {
-    if (schedule == null) return 'As needed';
+    if (schedule == null) return 'As needed'.tr;
     final times =
         schedule.reminderTimes.map((t) => displayTime(context, t)).join(', ');
     return '$times · ${daysLabel(schedule.daysOfWeek)}';
@@ -90,12 +119,13 @@ class MedicationFormat {
   static String? runsOutLabel(MedicationInventory inventory) {
     final days = inventory.daysLeft;
     if (days == null) return null;
-    if (days <= 0) return 'runs out today';
-    if (days == 1) return 'runs out tomorrow';
-    return 'lasts $days days';
+    if (days <= 0) return 'runs out today'.tr;
+    if (days == 1) return 'runs out tomorrow'.tr;
+    return 'lasts {n} days'.trArgs({'n': days});
   }
 
-  static String doses(int n) => n == 1 ? '1 dose' : '$n doses';
+  static String doses(int n) =>
+      n == 1 ? '1 dose'.tr : '{n} doses'.trArgs({'n': n});
 
   /// Full doses the stock covers.
   static int dosesInStock(MedicationInventory inventory) =>
@@ -108,8 +138,9 @@ class MedicationFormat {
   static String stockSummary(MedicationInventory inventory) {
     final n = dosesInStock(inventory);
     final left = inventory.unitsPerDose == 1
-        ? '${doses(n)} left'
-        : '${amount(inventory.quantity)} left (${doses(n)})';
+        ? '{doses} left'.trArgs({'doses': doses(n)})
+        : '{amount} left ({doses})'.trArgs(
+            {'amount': amount(inventory.quantity), 'doses': doses(n)});
     final runsOut = runsOutLabel(inventory);
     return runsOut == null ? left : '$left · $runsOut';
   }
@@ -118,8 +149,12 @@ class MedicationFormat {
   /// is scheduled today.
   static String? todaySummary({required int total, required int left, required int taken}) {
     if (total == 0) return null;
-    if (left > 0) return 'Today: $left of ${doses(total)} left';
-    return 'Today: $taken of $total taken';
+    if (left > 0) {
+      return 'Today: {left} of {doses} left'
+          .trArgs({'left': left, 'doses': doses(total)});
+    }
+    return 'Today: {taken} of {total} taken'
+        .trArgs({'taken': taken, 'total': total});
   }
 
   /// Doses still to come in a course with an end date, counting today's

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../reminder/domain/entities/dose.dart';
 import '../../domain/entities/medication.dart';
 import '../utils/medication_format.dart';
+import 'medicine_avatar.dart';
 
 class MedicationCard extends StatelessWidget {
   final Medication medication;
+
+  /// Opens the details: photo, how to take it, side effects.
+  final VoidCallback onOpen;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -23,6 +28,7 @@ class MedicationCard extends StatelessWidget {
   const MedicationCard({
     super.key,
     required this.medication,
+    required this.onOpen,
     required this.onEdit,
     required this.onDelete,
     required this.onToggleStopped,
@@ -63,8 +69,9 @@ class MedicationCard extends StatelessWidget {
       final ends = MaterialLocalizations.of(context)
           .formatShortMonthDay(schedule!.endDate!);
       courseText = courseLeft == 0
-          ? 'Course finished'
-          : 'Course: ${MedicationFormat.doses(courseLeft)} left · ends $ends';
+          ? 'Course finished'.tr
+          : 'Course: {doses} left · ends {date}'.trArgs(
+              {'doses': MedicationFormat.doses(courseLeft), 'date': ends});
     }
 
     return Material(
@@ -75,23 +82,17 @@ class MedicationCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onEdit,
+        onTap: onOpen,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 4, 14),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.tertiaryLight,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  MedicationFormat.typeIcon(m.medicineType),
-                  color: stopped ? AppColors.textSecondary : AppColors.primary,
-                ),
+              MedicineAvatar(
+                medicineType: m.medicineType,
+                photoUrl: m.photoUrl,
+                size: 56,
+                muted: stopped,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -118,9 +119,9 @@ class MedicationCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     if (stopped)
-                      const _InfoRow(
+                      _InfoRow(
                         icon: Icons.pause_circle_outline_rounded,
-                        text: 'Stopped · no doses or reminders',
+                        text: 'Stopped · no doses or reminders'.tr,
                       )
                     else
                       _InfoRow(
@@ -132,9 +133,9 @@ class MedicationCard extends StatelessWidget {
                         text: MedicationFormat.scheduleSummary(
                                 context, schedule) +
                             (remindersOff
-                                ? ' · Reminders off'
+                                ? ' · ${'Reminders off'.tr}'
                                 : alarm
-                                    ? ' · Alarm'
+                                    ? ' · ${'Alarm'.tr}'
                                     : ''),
                       ),
                     if (todayText != null) ...[
@@ -154,7 +155,7 @@ class MedicationCard extends StatelessWidget {
                       _InfoRow(
                         icon: Icons.inventory_2_outlined,
                         text: MedicationFormat.stockSummary(inventory) +
-                            (inventory.lowStock ? ' · Refill soon' : ''),
+                            (inventory.lowStock ? ' · ${'Refill soon'.tr}' : ''),
                         // Low stock stands out; a stopped medicine needs none.
                         color: inventory.lowStock && !stopped
                             ? AppColors.error
@@ -173,24 +174,28 @@ class MedicationCard extends StatelessWidget {
                 ),
               ),
               PopupMenuButton<VoidCallback>(
-                tooltip: 'More',
+                tooltip: 'More'.tr,
                 icon: Icon(Icons.more_vert_rounded,
                     color: AppColors.textSecondary),
                 onSelected: (action) => action(),
                 // `_`: none of the callbacks use the menu's own context.
                 itemBuilder: (_) => [
-                  PopupMenuItem(value: onEdit, child: const Text('Edit')),
+                  PopupMenuItem(
+                      value: onOpen,
+                      child: Text('How to take & side effects'.tr)),
+                  PopupMenuItem(value: onEdit, child: Text('Edit'.tr)),
                   if (inventory != null)
                     PopupMenuItem(
-                        value: onRefill, child: const Text('Add stock')),
+                        value: onRefill, child: Text('Add stock'.tr)),
                   PopupMenuItem(
                     value: onToggleStopped,
-                    child: Text(stopped ? 'Resume medicine' : 'Stop medicine'),
+                    child: Text(
+                        stopped ? 'Resume medicine'.tr : 'Stop medicine'.tr),
                   ),
                   PopupMenuItem(
                     value: onDelete,
-                    child: const Text('Delete',
-                        style: TextStyle(color: AppColors.error)),
+                    child: Text('Delete'.tr,
+                        style: const TextStyle(color: AppColors.error)),
                   ),
                 ],
               ),

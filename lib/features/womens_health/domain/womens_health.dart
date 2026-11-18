@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Strips the time so dates compare by calendar day.
 DateTime dayOnly(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -21,6 +22,17 @@ enum PeriodFlow {
   final String apiValue;
   final String label;
   const PeriodFlow(this.apiValue, this.label);
+
+  /// 'Light flow', 'Medium flow' or 'Heavy flow' in the current language.
+  String get flowLabel => switch (this) {
+        light => 'Light flow'.tr,
+        medium => 'Medium flow'.tr,
+        heavy => 'Heavy flow'.tr,
+      };
+
+  /// [label] in the current language. 'Light' on its own means other things
+  /// elsewhere in the app, so Nepali shows the full [flowLabel].
+  String get localizedLabel => L10n.isNepali ? flowLabel : label;
 
   static PeriodFlow? fromApi(String? v) {
     for (final f in values) {

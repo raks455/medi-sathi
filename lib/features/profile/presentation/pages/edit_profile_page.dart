@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -16,8 +17,8 @@ class EditProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit profile',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Edit profile'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       // The form starts from the saved profile, so it waits for it: saving a
       // form that started empty would wipe details the user already has.
@@ -44,7 +45,7 @@ class EditProfilePage extends StatelessWidget {
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: context.read<ProfileCubit>().load,
-                    child: const Text('Try again'),
+                    child: Text('Try again'.tr),
                   ),
                 ],
               ),
@@ -80,6 +81,13 @@ class _ProfileFormState extends State<_ProfileForm> {
     super.dispose();
   }
 
+  static String _ageText(DateTime born) {
+    final years = UserProfile.ageOn(born);
+    return years == 1
+        ? '1 year old'.tr
+        : '{n} years old'.trArgs({'n': years});
+  }
+
   Future<void> _pickBirthDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -89,7 +97,7 @@ class _ProfileFormState extends State<_ProfileForm> {
       lastDate: now,
       initialEntryMode: DatePickerEntryMode.calendar,
       initialDatePickerMode: DatePickerMode.year,
-      helpText: 'Date of birth',
+      helpText: 'Date of birth'.tr,
     );
     if (picked != null && mounted) setState(() => _born = picked);
   }
@@ -112,12 +120,12 @@ class _ProfileFormState extends State<_ProfileForm> {
     if (!mounted) return;
     setState(() => _saving = false);
     if (error != null) {
-      showInfoSnack(context, error, error: true);
+      showInfoSnack(context, error.tr, error: true);
       return;
     }
     // The name on the dashboard and profile comes from the saved session.
     auth.add(const AuthUserRequested());
-    showInfoSnack(context, 'Profile saved');
+    showInfoSnack(context, 'Profile saved'.tr);
     Navigator.of(context).pop();
   }
 
@@ -133,13 +141,13 @@ class _ProfileFormState extends State<_ProfileForm> {
             controller: _name,
             textCapitalization: TextCapitalization.words,
             maxLength: 100,
-            decoration: const InputDecoration(
-              labelText: 'Full name',
-              prefixIcon: Icon(Icons.person_outline_rounded),
+            decoration: InputDecoration(
+              labelText: 'Full name'.tr,
+              prefixIcon: const Icon(Icons.person_outline_rounded),
               counterText: '',
             ),
             validator: (v) => (v ?? '').trim().length < 2
-                ? 'Enter your name'
+                ? 'Enter your name'.tr
                 : null,
           ),
           const SizedBox(height: 14),
@@ -151,12 +159,12 @@ class _ProfileFormState extends State<_ProfileForm> {
             child: InputDecorator(
               isEmpty: born == null,
               decoration: InputDecoration(
-                labelText: 'Date of birth',
+                labelText: 'Date of birth'.tr,
                 prefixIcon: const Icon(Icons.cake_outlined),
                 suffixIcon: born == null
                     ? const Icon(Icons.calendar_today_rounded, size: 20)
                     : IconButton(
-                        tooltip: 'Clear',
+                        tooltip: 'Clear'.tr,
                         icon: const Icon(Icons.close_rounded),
                         onPressed: () => setState(() => _born = null),
                       ),
@@ -165,7 +173,7 @@ class _ProfileFormState extends State<_ProfileForm> {
                   ? null
                   : Text(
                       '${DateFormat.yMMMd().format(born)}  ·  '
-                      '${UserProfile.ageOn(born)} years old',
+                      '${_ageText(born)}',
                       style: TextStyle(
                           fontSize: 16, color: AppColors.textPrimary),
                     ),
@@ -175,7 +183,7 @@ class _ProfileFormState extends State<_ProfileForm> {
           Wrap(spacing: 8, runSpacing: 8, children: [
             for (final g in Gender.values)
               ChoiceChip(
-                label: Text(g.label),
+                label: Text(g.label.tr),
                 selected: _gender == g,
                 showCheckmark: false,
                 onSelected: (on) => setState(() => _gender = on ? g : null),
@@ -196,14 +204,14 @@ class _ProfileFormState extends State<_ProfileForm> {
           _TagPicker(
             suggestions: UserProfile.commonConditions,
             selected: _conditions,
-            hint: 'Add another disease',
+            hint: 'Add another disease'.tr,
             onChanged: (v) => setState(() => _conditions = v),
           ),
           const SectionLabel('Allergies'),
           _TagPicker(
             suggestions: UserProfile.commonAllergies,
             selected: _allergies,
-            hint: 'Add another allergy',
+            hint: 'Add another allergy'.tr,
             onChanged: (v) => setState(() => _allergies = v),
           ),
           const SizedBox(height: 24),
@@ -216,7 +224,7 @@ class _ProfileFormState extends State<_ProfileForm> {
                     child: CircularProgressIndicator(
                         strokeWidth: 2.5, color: Colors.white),
                   )
-                : const Text('Save'),
+                : Text('Save'.tr),
           ),
         ],
       ),
@@ -287,7 +295,7 @@ class _TagPickerState extends State<_TagPicker> {
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (final tag in widget.suggestions)
             FilterChip(
-              label: Text(tag),
+              label: Text(tag.tr),
               selected: _has(tag),
               onSelected: (on) => _toggle(tag, on),
             ),
@@ -311,7 +319,7 @@ class _TagPickerState extends State<_TagPicker> {
             hintText: widget.hint,
             counterText: '',
             suffixIcon: IconButton(
-              tooltip: 'Add',
+              tooltip: 'Add'.tr,
               icon: const Icon(Icons.add_circle_outline_rounded),
               onPressed: _addCustom,
             ),

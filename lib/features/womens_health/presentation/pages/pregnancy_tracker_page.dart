@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/womens_health.dart';
@@ -19,21 +20,22 @@ class PregnancyTrackerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pregnancy tracker',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Pregnancy tracker'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           BlocBuilder<PregnancyCubit, PregnancyState>(
             builder: (context, state) => state.pregnancy == null
                 ? const SizedBox.shrink()
                 : PopupMenuButton<String>(
-                    tooltip: 'More',
+                    tooltip: 'More'.tr,
                     onSelected: (v) => v == 'edit'
                         ? _showSetup(context, state.pregnancy)
                         : _confirmStop(context),
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Change dates')),
+                    itemBuilder: (_) => [
                       PopupMenuItem(
-                          value: 'stop', child: Text('Stop tracking')),
+                          value: 'edit', child: Text('Change dates'.tr)),
+                      PopupMenuItem(
+                          value: 'stop', child: Text('Stop tracking'.tr)),
                     ],
                   ),
           ),
@@ -62,12 +64,13 @@ class PregnancyTrackerPage extends StatelessWidget {
                   _ProgressCard(pregnancy: p),
                   const SizedBox(height: 16),
                   _TipCard(pregnancy: p),
-                  const SectionLabel('Calendar'),
+                  SectionLabel('Calendar'.tr),
                   _PregnancyCalendar(pregnancy: p),
                   const SizedBox(height: 16),
                   Text(
                     'Dates are estimated from your last period (40 weeks). '
-                    'Your doctor may adjust them after an ultrasound.',
+                            'Your doctor may adjust them after an ultrasound.'
+                        .tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 12, color: AppColors.textSecondary),
@@ -106,16 +109,16 @@ class PregnancyTrackerPage extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Stop tracking?'),
-        content: const Text('Your pregnancy dates will be removed.'),
+        title: Text('Stop tracking?'.tr),
+        content: Text('Your pregnancy dates will be removed.'.tr),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(d, false),
-              child: const Text('Cancel')),
+              child: Text('Cancel'.tr)),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.pop(d, true),
-            child: const Text('Stop tracking'),
+            child: Text('Stop tracking'.tr),
           ),
         ],
       ),
@@ -149,7 +152,7 @@ class _Empty extends StatelessWidget {
                 size: 52, color: _accent),
           ),
           const SizedBox(height: 18),
-          Text('Track your pregnancy',
+          Text('Track your pregnancy'.tr,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -158,7 +161,8 @@ class _Empty extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'See how many weeks along you are, your due date, your baby\'s '
-            'size each week and tips for every trimester.',
+                    'size each week and tips for every trimester.'
+                .tr,
             textAlign: TextAlign.center,
             style: TextStyle(height: 1.45, color: AppColors.textSecondary),
           ),
@@ -167,7 +171,7 @@ class _Empty extends StatelessWidget {
             onPressed: onStart,
             style: ElevatedButton.styleFrom(backgroundColor: _accent),
             icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Start tracking'),
+            label: Text('Start tracking'.tr),
           ),
         ],
       ),
@@ -184,10 +188,10 @@ class _ProgressCard extends StatelessWidget {
     final p = pregnancy;
     final remaining = p.daysRemaining;
     final countdown = remaining > 0
-        ? '$remaining days to go'
+        ? '{n} days to go'.trArgs({'n': remaining})
         : remaining == 0
-            ? 'Due today'
-            : '${-remaining} days past due date';
+            ? 'Due today'.tr
+            : '{n} days past due date'.trArgs({'n': -remaining});
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -222,8 +226,9 @@ class _ProgressCard extends StatelessWidget {
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
                               height: 1)),
-                      const Text('weeks',
-                          style: TextStyle(color: Colors.white, fontSize: 12)),
+                      Text('weeks'.tr,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -235,17 +240,22 @@ class _ProgressCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${p.weeks} weeks ${p.days} days',
+                Text(
+                    '{w} weeks {d} days'
+                        .trArgs({'w': p.weeks, 'd': p.days}),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                Text('Trimester ${p.trimester} · $countdown',
+                Text(
+                    '${'Trimester {n}'.trArgs({'n': p.trimester})} · $countdown',
                     style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.92))),
                 const SizedBox(height: 8),
-                Text('Due ${DateFormat.yMMMMd().format(p.dueDate)}',
+                Text(
+                    'Due {date}'.trArgs(
+                        {'date': DateFormat.yMMMMd().format(p.dueDate)}),
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.w700)),
               ],
@@ -272,7 +282,9 @@ class _TipCard extends StatelessWidget {
             const Icon(Icons.child_care_rounded, color: _accent),
             const SizedBox(width: 10),
             Expanded(
-              child: Text('Your baby is about the size of ${p.babySize}',
+              child: Text(
+                  'Your baby is about the size of {size}'
+                      .trArgs({'size': p.babySize}),
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary)),
@@ -312,10 +324,14 @@ class _PregnancyCalendarState extends State<_PregnancyCalendar> {
 
   String? _milestone(DateTime day) {
     final p = widget.pregnancy;
-    if (isSameDay(day, p.dueDate)) return 'Due date';
-    if (isSameDay(day, p.secondTrimesterStart)) return 'Second trimester begins';
-    if (isSameDay(day, p.thirdTrimesterStart)) return 'Third trimester begins';
-    if (isSameDay(day, p.lastPeriodDate)) return 'First day of last period';
+    if (isSameDay(day, p.dueDate)) return 'Due date'.tr;
+    if (isSameDay(day, p.secondTrimesterStart)) {
+      return 'Second trimester begins'.tr;
+    }
+    if (isSameDay(day, p.thirdTrimesterStart)) {
+      return 'Third trimester begins'.tr;
+    }
+    if (isSameDay(day, p.lastPeriodDate)) return 'First day of last period'.tr;
     return null;
   }
 
@@ -419,7 +435,7 @@ class _PregnancyCalendarState extends State<_PregnancyCalendar> {
           child: Text(
             [
               DateFormat.yMMMMEEEEd().format(_selected),
-              if (!beforeStart) '$w weeks $d days',
+              if (!beforeStart) '{w} weeks {d} days'.trArgs({'w': w, 'd': d}),
               if (milestone != null) milestone,
             ].join(' · '),
             textAlign: TextAlign.center,
@@ -468,8 +484,8 @@ class _SetupSheetState extends State<_SetupSheet> {
         children: [
           Text(
               widget.current == null
-                  ? 'Start pregnancy tracking'
-                  : 'Change dates',
+                  ? 'Start pregnancy tracking'.tr
+                  : 'Change dates'.tr,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -483,9 +499,9 @@ class _SetupSheetState extends State<_SetupSheet> {
               selectedForegroundColor: Colors.white,
               foregroundColor: AppColors.textPrimary,
             ),
-            segments: const [
-              ButtonSegment(value: false, label: Text('Last period')),
-              ButtonSegment(value: true, label: Text('Due date')),
+            segments: [
+              ButtonSegment(value: false, label: Text('Last period'.tr)),
+              ButtonSegment(value: true, label: Text('Due date'.tr)),
             ],
             selected: {_byDueDate},
             onSelectionChanged: (s) => setState(() {
@@ -496,8 +512,8 @@ class _SetupSheetState extends State<_SetupSheet> {
           const SizedBox(height: 12),
           Text(
             _byDueDate
-                ? 'Use the due date your doctor gave you.'
-                : 'The first day of your last menstrual period.',
+                ? 'Use the due date your doctor gave you.'.tr
+                : 'The first day of your last menstrual period.'.tr,
             style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
@@ -507,7 +523,7 @@ class _SetupSheetState extends State<_SetupSheet> {
                 OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
             icon: const Icon(Icons.event_rounded),
             label: Text(_date == null
-                ? 'Choose a date'
+                ? 'Choose a date'.tr
                 : DateFormat.yMMMMd().format(_date!)),
           ),
           const SizedBox(height: 16),
@@ -516,7 +532,7 @@ class _SetupSheetState extends State<_SetupSheet> {
                 ? null
                 : () => Navigator.pop(context, (_date!, _byDueDate)),
             style: ElevatedButton.styleFrom(backgroundColor: _accent),
-            child: const Text('Save'),
+            child: Text('Save'.tr),
           ),
         ],
       ),

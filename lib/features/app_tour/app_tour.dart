@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/l10n/l10n.dart';
 import '../../core/theme/app_colors.dart';
 
 /// Widgets the tour points at. Each key is attached to exactly one widget.
@@ -19,6 +20,8 @@ class TourStep {
   /// screen. Steps whose widget is not on screen are skipped.
   final GlobalKey? target;
   final IconData icon;
+
+  /// [title] and [body] are the English texts, translated where shown.
   final String title;
   final String body;
 
@@ -312,7 +315,7 @@ class _TourCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      step.title,
+                      step.title.tr,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -332,7 +335,7 @@ class _TourCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                step.body,
+                step.body.tr,
                 style: TextStyle(
                     fontSize: 15, height: 1.45, color: AppColors.textPrimary),
               ),
@@ -344,11 +347,11 @@ class _TourCard extends StatelessWidget {
                       onPressed: onSkip,
                       style: TextButton.styleFrom(
                           foregroundColor: AppColors.textSecondary),
-                      child: const Text('Skip'),
+                      child: Text('Skip'.tr),
                     ),
                   const Spacer(),
                   if (onBack != null)
-                    TextButton(onPressed: onBack, child: const Text('Back')),
+                    TextButton(onPressed: onBack, child: Text('Back'.tr)),
                   const SizedBox(width: 4),
                   FilledButton(
                     onPressed: onNext,
@@ -358,7 +361,7 @@ class _TourCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text(last ? 'Get started' : 'Next'),
+                    child: Text(last ? 'Get started'.tr : 'Next'.tr),
                   ),
                 ],
               ),

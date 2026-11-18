@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/health_record.dart';
 import '../../domain/health_records_repository.dart';
@@ -38,7 +39,8 @@ Future<void> openRecord(BuildContext context, HealthRecordsRepository repo,
       }
       final opened = await OpenFilex.open(path);
       if (opened.type != ResultType.done && context.mounted) {
-        showInfoSnack(context, 'No app found to open this file.', error: true);
+        showInfoSnack(context, 'No app found to open this file.'.tr,
+            error: true);
       }
     },
   );
@@ -59,7 +61,7 @@ class _ImageViewer extends StatelessWidget {
         title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
           IconButton(
-            tooltip: 'Open in another app',
+            tooltip: 'Open in another app'.tr,
             icon: const Icon(Icons.open_in_new_rounded),
             onPressed: () => OpenFilex.open(path),
           ),

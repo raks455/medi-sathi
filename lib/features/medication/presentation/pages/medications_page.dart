@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/medication.dart';
@@ -11,6 +12,8 @@ import '../bloc/medication_bloc.dart';
 import '../utils/medication_format.dart';
 import '../widgets/add_medicine_sheet.dart';
 import '../widgets/medication_card.dart';
+import '../widgets/medicine_details_sheet.dart';
+import '../widgets/medicine_export.dart';
 
 class MedicationsPage extends StatelessWidget {
   const MedicationsPage({super.key});
@@ -26,7 +29,7 @@ class MedicationsPage extends StatelessWidget {
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: Text(result.message ?? 'Could not refresh'),
+          content: Text(result.message ?? 'Could not refresh'.tr),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ));
@@ -50,7 +53,7 @@ class MedicationsPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'.tr),
           ),
           TextButton(
             style: destructive
@@ -69,11 +72,12 @@ class MedicationsPage extends StatelessWidget {
     final bloc = context.read<MedicationBloc>();
     final ok = await _confirm(
       context,
-      title: 'Delete medicine?',
-      message: '"${m.name}", its reminders and its dose history will be '
-          'removed. This cannot be undone.\n\n'
-          'To keep the history, stop the medicine instead.',
-      action: 'Delete',
+      title: 'Delete medicine?'.tr,
+      message: '"{name}", its reminders and its dose history will be '
+              'removed. This cannot be undone.\n\n'
+              'To keep the history, stop the medicine instead.'
+          .trArgs({'name': m.name}),
+      action: 'Delete'.tr,
       destructive: true,
     );
     if (ok) bloc.add(MedicationDeleted(m.id));
@@ -88,10 +92,11 @@ class MedicationsPage extends StatelessWidget {
     }
     final ok = await _confirm(
       context,
-      title: 'Stop this medicine?',
-      message: 'You will get no more doses or reminders for "${m.name}". '
-          'Its history is kept and you can resume it any time.',
-      action: 'Stop',
+      title: 'Stop this medicine?'.tr,
+      message: 'You will get no more doses or reminders for "{name}". '
+              'Its history is kept and you can resume it any time.'
+          .trArgs({'name': m.name}),
+      action: 'Stop'.tr,
     );
     if (ok) bloc.add(MedicationStopToggled(id: m.id, stopped: true));
   }
@@ -118,11 +123,11 @@ class MedicationsPage extends StatelessWidget {
     var isError = false;
     if (state.actionStatus == ActionStatus.success) {
       text = switch (state.action) {
-        MedicationAction.add => 'Medicine added',
-        MedicationAction.update => 'Medicine updated',
-        MedicationAction.delete => 'Medicine deleted',
-        MedicationAction.stop => 'Medicine stopped',
-        MedicationAction.resume => 'Medicine resumed',
+        MedicationAction.add => 'Medicine added'.tr,
+        MedicationAction.update => 'Medicine updated'.tr,
+        MedicationAction.delete => 'Medicine deleted'.tr,
+        MedicationAction.stop => 'Medicine stopped'.tr,
+        MedicationAction.resume => 'Medicine resumed'.tr,
         MedicationAction.none => null,
       };
     } else if (state.actionStatus == ActionStatus.failure &&
@@ -130,7 +135,7 @@ class MedicationsPage extends StatelessWidget {
       // A failed add is shown by the form itself. A failed update may come
       // from the form or from "Add stock" here; the form is on top when it
       // is the source, and shows its own message first.
-      text = state.actionMessage ?? 'Something went wrong';
+      text = state.actionMessage ?? 'Something went wrong'.tr;
       isError = true;
     }
     if (text == null) return;
@@ -151,8 +156,18 @@ class MedicationsPage extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('My medicines',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            title: Text('My medicines'.tr,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            actions: [
+              if (state.medications.isNotEmpty)
+                IconButton(
+                  tooltip: 'Save my medicine list as a PDF'.tr,
+                  icon: const Icon(Icons.download_rounded),
+                  onPressed: () =>
+                      exportMedicines(context, state.medications),
+                ),
+              const SizedBox(width: 4),
+            ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(3),
               // Shown while a change from this page (stop, delete, add
@@ -168,7 +183,7 @@ class MedicationsPage extends StatelessWidget {
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => showAddMedicineSheet(context),
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Add medicine'),
+            label: Text('Add medicine'.tr),
           ),
           body: _buildBody(context, state),
         );
@@ -187,9 +202,9 @@ class MedicationsPage extends StatelessWidget {
         case MedicationStatus.failure:
           return _Message(
             icon: Icons.cloud_off_rounded,
-            title: 'Could not load your medicines',
-            subtitle: state.message ?? 'Something went wrong.',
-            actionLabel: 'Try again',
+            title: 'Could not load your medicines'.tr,
+            subtitle: state.message ?? 'Something went wrong.'.tr,
+            actionLabel: 'Try again'.tr,
             onAction: () => context
                 .read<MedicationBloc>()
                 .add(const MedicationsRequested()),
@@ -197,10 +212,11 @@ class MedicationsPage extends StatelessWidget {
         case MedicationStatus.success:
           return _Message(
             icon: Icons.medication_outlined,
-            title: 'No medicines yet',
+            title: 'No medicines yet'.tr,
             subtitle:
-                'Add your first medicine to start getting reminders on time.',
-            actionLabel: 'Add medicine',
+                'Add your first medicine to start getting reminders on time.'
+                    .tr,
+            actionLabel: 'Add medicine'.tr,
             onAction: () => showAddMedicineSheet(context),
           );
       }
@@ -219,6 +235,7 @@ class MedicationsPage extends StatelessWidget {
               todayDoses: reminders.today?.doses
                   .where((d) => d.medicationId == m.id)
                   .toList(),
+              onOpen: () => showMedicineDetails(context, m.id),
               onEdit: () => context.go(AppRoutes.editMedication(m.id)),
               onDelete: () => _confirmDelete(context, m),
               onToggleStopped: () => _toggleStopped(context, m),
@@ -240,7 +257,7 @@ class MedicationsPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(top: active.isEmpty ? 0 : 8, bottom: 12),
               child: Text(
-                'Stopped (${stopped.length})',
+                'Stopped ({n})'.trArgs({'n': stopped.length}),
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -285,7 +302,7 @@ class _AddStockDialogState extends State<_AddStockDialog> {
     final m = widget.medication;
     return AlertDialog(
       backgroundColor: AppColors.scaffold,
-      title: const Text('Add stock'),
+      title: Text('Add stock'.tr),
       content: Form(
         key: _formKey,
         child: Column(
@@ -293,8 +310,10 @@ class _AddStockDialogState extends State<_AddStockDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${m.name}: ${MedicationFormat.amount(m.inventory!.quantity)} '
-              'in stock now.',
+              '{name}: {amount} in stock now.'.trArgs({
+                'name': m.name,
+                'amount': MedicationFormat.amount(m.inventory!.quantity),
+              }),
               style: TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
@@ -309,13 +328,15 @@ class _AddStockDialogState extends State<_AddStockDialog> {
               onFieldSubmitted: (_) => _submit(),
               validator: (v) {
                 final n = double.tryParse(v?.trim() ?? '');
-                if (n == null || n <= 0) return 'Enter how much you added';
-                if (m.inventory!.quantity + n > 100000) return 'Too many';
+                if (n == null || n <= 0) {
+                  return 'Enter how much you added'.tr;
+                }
+                if (m.inventory!.quantity + n > 100000) return 'Too many'.tr;
                 return null;
               },
-              decoration: const InputDecoration(
-                labelText: 'Amount added',
-                hintText: 'e.g. 30',
+              decoration: InputDecoration(
+                labelText: 'Amount added'.tr,
+                hintText: 'e.g. 30'.tr,
               ),
             ),
           ],
@@ -324,9 +345,9 @@ class _AddStockDialogState extends State<_AddStockDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text('Cancel'.tr),
         ),
-        TextButton(onPressed: _submit, child: const Text('Add')),
+        TextButton(onPressed: _submit, child: Text('Add'.tr)),
       ],
     );
   }

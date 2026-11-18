@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/app_notification.dart';
 import '../bloc/notifications_bloc.dart';
@@ -23,15 +24,15 @@ class NotificationsPage extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Notifications',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            title: Text('Notifications'.tr,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             actions: [
               if (state.unreadCount > 0)
                 TextButton(
                   onPressed: () => context
                       .read<NotificationsBloc>()
                       .add(const NotificationsAllMarkedRead()),
-                  child: const Text('Mark all read'),
+                  child: Text('Mark all read'.tr),
                 ),
             ],
           ),
@@ -50,18 +51,19 @@ class NotificationsPage extends StatelessWidget {
         case NotificationsStatus.failure:
           return _Message(
             icon: Icons.cloud_off_rounded,
-            title: 'Could not load notifications',
-            subtitle: state.message ?? 'Something went wrong.',
-            actionLabel: 'Try again',
+            title: 'Could not load notifications'.tr,
+            subtitle: state.message ?? 'Something went wrong.'.tr,
+            actionLabel: 'Try again'.tr,
             onAction: () => context
                 .read<NotificationsBloc>()
                 .add(const NotificationsRequested()),
           );
         case NotificationsStatus.success:
-          return const _Message(
+          return _Message(
             icon: Icons.notifications_none_rounded,
-            title: 'No notifications yet',
-            subtitle: 'Dose reminders and refill reminders will appear here.',
+            title: 'No notifications yet'.tr,
+            subtitle:
+                'Dose reminders and refill reminders will appear here.'.tr,
           );
       }
     }
@@ -91,7 +93,7 @@ class NotificationsPage extends StatelessWidget {
                       onPressed: () => context
                           .read<NotificationsBloc>()
                           .add(const NotificationsMoreRequested()),
-                      child: const Text('Load older'),
+                      child: Text('Load older'.tr),
                     ),
             );
           }
@@ -131,17 +133,19 @@ class _NotificationTile extends StatelessWidget {
     final local = createdAt.toLocal();
     final now = DateTime.now();
     final age = now.difference(local);
-    if (age.inMinutes < 1) return 'Just now';
-    if (age.inMinutes < 60) return '${age.inMinutes} min ago';
-    if (age.inHours < 6) return '${age.inHours} h ago';
+    if (age.inMinutes < 1) return 'Just now'.tr;
+    if (age.inMinutes < 60) {
+      return '{n} min ago'.trArgs({'n': age.inMinutes});
+    }
+    if (age.inHours < 6) return '{n} h ago'.trArgs({'n': age.inHours});
 
     final time = MaterialLocalizations.of(context)
         .formatTimeOfDay(TimeOfDay.fromDateTime(local));
     final days = DateUtils.dateOnly(now)
         .difference(DateUtils.dateOnly(local))
         .inDays;
-    if (days == 0) return 'Today, $time';
-    if (days == 1) return 'Yesterday, $time';
+    if (days == 0) return 'Today, {time}'.trArgs({'time': time});
+    if (days == 1) return 'Yesterday, {time}'.trArgs({'time': time});
     return '${DateFormat('d MMM').format(local)}, $time';
   }
 

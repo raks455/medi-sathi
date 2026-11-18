@@ -32,6 +32,7 @@ import '../../features/auth/domain/usecases/sign_out.dart';
 import '../../features/auth/domain/usecases/sign_up.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/medication/data/datasources/medication_remote_datasource.dart';
+import '../../features/medication/data/medicine_photo_service.dart';
 import '../../features/medication/data/datasources/prescription_scanner.dart';
 import '../../features/medication/data/repositories/medication_repository_impl.dart';
 import '../../features/medication/data/repositories/prescription_scan_repository_impl.dart';
@@ -72,8 +73,13 @@ import '../../features/reminder/presentation/bloc/dose_history_bloc.dart';
 import '../../features/reminder/presentation/bloc/reminder_bloc.dart';
 import '../../features/splash/presentation/bloc/splash_bloc.dart';
 import '../constants/api_constants.dart';
+import '../l10n/l10n.dart';
+import '../router/app_router.dart';
+import '../widgets/camera_capture_page.dart';
 import '../network/dio_client.dart';
+import '../theme/text_size_cubit.dart';
 import '../theme/theme_cubit.dart';
+import '../../features/habits/habits.dart';
 
 final sl = GetIt.instance;
 
@@ -84,6 +90,16 @@ Future<void> init() async {
 
   // ---------- App preferences ----------
   sl.registerLazySingleton(() => ThemeCubit(sl()));
+  sl.registerLazySingleton(() => TextSizeCubit(sl()));
+  sl.registerLazySingleton(() => LanguageCubit(
+        sl(),
+        // The server writes the reminder notifications, so it has to know
+        // the language. Only possible once someone is signed in.
+        onChanged: (lang) async {
+          if (await sl<AuthTokenStorage>().readAccessToken() == null) return;
+          await sl<ProfileRemoteDataSource>().setLanguage(lang.code);
+        },
+      ));
   sl.registerLazySingleton(() => AppTourService(sl()));
 
   // ---------- Auth: storage first (the network layer needs it) ----------
@@ -151,8 +167,18 @@ Future<void> init() async {
         setMedicationStopped: sl(),
       ));
 
+  sl.registerLazySingleton(() => MedicinePhotoService(sl()));
+
   sl.registerLazySingleton<PrescriptionScanner>(
-      () => PrescriptionScannerImpl(ImagePicker()));
+      () => PrescriptionScannerImpl(
+            ImagePicker(),
+            takeCameraPhoto: () async {
+              final context =
+                  AppRouter.router.routerDelegate.navigatorKey.currentContext;
+              if (context == null) return null;
+              return takePhoto(context, quality: PhotoQuality.document);
+            },
+          ));
   sl.registerLazySingleton<PrescriptionScanRepository>(
       () => PrescriptionScanRepositoryImpl(scanner: sl()));
   sl.registerLazySingleton(() => ScanPrescription(sl()));
@@ -221,6 +247,13 @@ Future<void> init() async {
         tokenStorage: sl(),
       ));
   sl.registerFactory(() => ProfileCubit(sl()));
+
+  // ---------- Water and fasting trackers (kept on the phone) ----------
+  // One of each for the whole app: the dashboard and the tracker pages
+  // show the same numbers. load() picks up whoever is signed in.
+  sl.registerLazySingleton(() => HabitStore(sl(), sl()));
+  sl.registerLazySingleton(() => WaterCubit(sl()));
+  sl.registerLazySingleton(() => FastingCubit(sl()));
 
   // ---------- Splash ----------
   sl.registerFactory(() => SplashBloc(

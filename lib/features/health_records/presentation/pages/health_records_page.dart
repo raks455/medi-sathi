@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/health_record.dart';
@@ -45,7 +46,8 @@ class _HealthRecordsPageState extends State<HealthRecordsPage>
 
     final dot = file.name.lastIndexOf('.');
     final suggested = folder == RecordFolder.prescriptions
-        ? 'Prescription ${DateFormat.yMMMd().format(DateTime.now())}'
+        ? 'Prescription {date}'
+            .trArgs({'date': DateFormat.yMMMd().format(DateTime.now())})
         : (dot > 0 ? file.name.substring(0, dot) : file.name);
     final details = await showRecordDetailsSheet(context,
         folder: folder, suggestedTitle: suggested, actionLabel: 'Upload');
@@ -60,7 +62,10 @@ class _HealthRecordsPageState extends State<HealthRecordsPage>
       documentDate: details.documentDate,
     );
     if (!mounted) return;
-    showInfoSnack(context, error ?? 'Saved to ${_folderName(folder)}',
+    showInfoSnack(
+        context,
+        error ??
+            'Saved to {folder}'.trArgs({'folder': _folderName(folder)}),
         error: error != null);
   }
 
@@ -68,17 +73,21 @@ class _HealthRecordsPageState extends State<HealthRecordsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Health Records',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Health Records'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         bottom: TabBar(
           controller: _tabs,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,
           indicatorColor: AppColors.primary,
           labelStyle: const TextStyle(fontWeight: FontWeight.w700),
-          tabs: const [
-            Tab(icon: Icon(Icons.receipt_long_outlined), text: 'Prescriptions'),
-            Tab(icon: Icon(Icons.folder_shared_outlined), text: 'Health records'),
+          tabs: [
+            Tab(
+                icon: const Icon(Icons.receipt_long_outlined),
+                text: 'Prescriptions'.tr),
+            Tab(
+                icon: const Icon(Icons.folder_shared_outlined),
+                text: 'Health records'.tr),
           ],
         ),
       ),
@@ -94,7 +103,7 @@ class _HealthRecordsPageState extends State<HealthRecordsPage>
                       strokeWidth: 2.5, color: Colors.white),
                 )
               : const Icon(Icons.upload_file_rounded),
-          label: Text(state.uploading ? 'Uploading…' : 'Upload'),
+          label: Text(state.uploading ? 'Uploading…'.tr : 'Upload'.tr),
         ),
       ),
       body: BlocBuilder<HealthRecordsCubit, HealthRecordsState>(
@@ -105,10 +114,10 @@ class _HealthRecordsPageState extends State<HealthRecordsPage>
           if (state.status == RecordsStatus.failure && state.records.isEmpty) {
             return _Message(
               icon: Icons.cloud_off_rounded,
-              text: state.message ?? 'Could not load your records',
+              text: state.message ?? 'Could not load your records'.tr,
               action: TextButton(
                 onPressed: context.read<HealthRecordsCubit>().load,
-                child: const Text('Try again'),
+                child: Text('Try again'.tr),
               ),
             );
           }
@@ -126,7 +135,7 @@ class _HealthRecordsPageState extends State<HealthRecordsPage>
 }
 
 String _folderName(RecordFolder f) =>
-    f == RecordFolder.prescriptions ? 'Prescriptions' : 'Health records';
+    f == RecordFolder.prescriptions ? 'Prescriptions'.tr : 'Health records'.tr;
 
 class _FolderView extends StatefulWidget {
   final RecordFolder folder;
@@ -166,10 +175,10 @@ class _FolderViewState extends State<_FolderView>
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _filterChip(null, 'All'),
+                  _filterChip(null, 'All'.tr),
                   for (final c in RecordCategory.documentTypes)
                     if (all.any((r) => r.category == c))
-                      _filterChip(c, c.label),
+                      _filterChip(c, c.label.tr),
                 ],
               ),
             ),
@@ -182,9 +191,11 @@ class _FolderViewState extends State<_FolderView>
                   : Icons.receipt_long_rounded,
               text: isDocs
                   ? 'Keep lab reports, scan reports, discharge summaries and '
-                      'other documents here.'
+                          'other documents here.'
+                      .tr
                   : 'Keep your prescriptions here. Upload a photo or PDF, or '
-                      'save one after scanning it in the Medicine tab.',
+                          'save one after scanning it in the Medicine tab.'
+                      .tr,
             )
           else
             for (final r in records)
@@ -232,7 +243,10 @@ class _UsageBar extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Text(
-          '${formatBytes(usage.usedBytes)} of ${formatBytes(usage.quotaBytes)}',
+          '{used} of {total}'.trArgs({
+            'used': formatBytes(usage.usedBytes),
+            'total': formatBytes(usage.quotaBytes),
+          }),
           style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
         ),
       ],
@@ -264,16 +278,17 @@ class _RecordTile extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Delete this file?'),
-        content: Text('"${record.title}" will be removed permanently.'),
+        title: Text('Delete this file?'.tr),
+        content: Text('"{title}" will be removed permanently.'
+            .trArgs({'title': record.title})),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(d, false),
-              child: const Text('Cancel')),
+              child: Text('Cancel'.tr)),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.pop(d, true),
-            child: const Text('Delete'),
+            child: Text('Delete'.tr),
           ),
         ],
       ),
@@ -281,7 +296,7 @@ class _RecordTile extends StatelessWidget {
     if (ok != true) return;
     final error = await cubit.delete(record);
     if (context.mounted) {
-      showInfoSnack(context, error ?? 'Deleted', error: error != null);
+      showInfoSnack(context, error ?? 'Deleted'.tr, error: error != null);
     }
   }
 
@@ -289,7 +304,7 @@ class _RecordTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = record;
     final subtitle = [
-      if (r.folder == RecordFolder.healthRecords) r.category.label,
+      if (r.folder == RecordFolder.healthRecords) r.category.label.tr,
       DateFormat.yMMMd().format(r.displayDate),
       formatBytes(r.sizeBytes),
     ].join(' · ');
@@ -324,11 +339,11 @@ class _RecordTile extends StatelessWidget {
           style: TextStyle(color: AppColors.textSecondary),
         ),
         trailing: PopupMenuButton<String>(
-          tooltip: 'More',
+          tooltip: 'More'.tr,
           onSelected: (v) => v == 'edit' ? _edit(context) : _delete(context),
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: 'edit', child: Text('Edit details')),
-            PopupMenuItem(value: 'delete', child: Text('Delete')),
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'edit', child: Text('Edit details'.tr)),
+            PopupMenuItem(value: 'delete', child: Text('Delete'.tr)),
           ],
         ),
       ),

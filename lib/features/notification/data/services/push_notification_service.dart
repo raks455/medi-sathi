@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui' show Color;
 
 import 'package:dartz/dartz.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/error/failures.dart';
@@ -12,7 +15,21 @@ import '../datasources/notification_remote_datasource.dart';
 
 /// Push reminders: registers this phone with the backend and shows the
 /// reminder pushes the server sends through Firebase Cloud Messaging.
+/// A dose reminder that arrived while the app is open.
+class ReminderAlert {
+  final String title;
+  final String body;
+
+  /// The user's photo of the medicine, if there is one.
+  final String? imageUrl;
+  const ReminderAlert({required this.title, required this.body, this.imageUrl});
+}
+
 abstract class PushNotificationService {
+  /// Dose reminders arriving while the app is open, to show on the screen
+  /// itself: a sound alone does not reach someone who cannot hear it.
+  Stream<ReminderAlert> get onAlert;
+
   /// Fires when a reminder push arrives in the foreground or is tapped,
   /// so screens can refresh the dose list.
   Stream<void> get onReminder;
@@ -44,6 +61,23 @@ class PushNotificationServiceImpl implements PushNotificationService {
     description: 'Reminders to take your medicines on time',
     importance: Importance.high,
   );
+
+  /// The channel newer servers send reminders to (their
+  /// REMINDER_ANDROID_CHANNEL_ID). Besides the sound it vibrates in a long,
+  /// clear pattern and blinks the notification light, so a reminder also
+  /// reaches people who are deaf or hard of hearing. A new channel because
+  /// Android never changes the vibration of an existing one.
+  static final _strongChannel = AndroidNotificationChannel(
+    'medication_reminders_v2',
+    'Medication reminders (sound, vibration and light)',
+    description: 'Reminders to take your medicines on time',
+    importance: Importance.max,
+    vibrationPattern: _reminderVibration,
+    enableLights: true,
+    ledColor: const Color(0xFF3368A0),
+  );
+  static final _reminderVibration =
+      Int64List.fromList([0, 700, 350, 700, 350, 700]);
 
   /// For doses whose alert style is "alarm". Must match the backend's
   /// ALARM_ANDROID_CHANNEL_ID. It plays the phone's alarm sound on the alarm
@@ -78,6 +112,10 @@ class PushNotificationServiceImpl implements PushNotificationService {
   });
 
   final _reminders = StreamController<void>.broadcast();
+  final _alerts = StreamController<ReminderAlert>.broadcast();
+
+  @override
+  Stream<ReminderAlert> get onAlert => _alerts.stream;
   Future<void>? _setup;
 
   /// True between registerDevice and unregisterDevice (a user is signed in).
@@ -158,6 +196,10 @@ class PushNotificationServiceImpl implements PushNotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(_alarmChannel);
+    await localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(_strongChannel);
     // iOS can show a push while the app is open; Android needs _showLocal.
     await messaging.setForegroundNotificationPresentationOptions(
         alert: true, badge: true, sound: true);
@@ -172,6 +214,32 @@ class PushNotificationServiceImpl implements PushNotificationService {
   Future<void> _sendToken(String token) async {
     await remote.registerDevice(token: token, platform: _platform);
     await prefs.setString(_tokenKey, token);
+  }
+
+  /// Saves the picture at [url] to a temporary file and returns its path;
+  /// null if there is none or it cannot be fetched quickly (the reminder
+  /// must not wait for it).
+  Future<String?> _downloadPicture(String? url) async {
+    if (url == null || url.isEmpty) return null;
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 5);
+    try {
+      final request = await client.getUrl(Uri.parse(url));
+      final response =
+          await request.close().timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200) return null;
+      final bytes = await response
+          .fold<List<int>>([], (all, chunk) => all..addAll(chunk))
+          .timeout(const Duration(seconds: 8));
+      final dir = await getTemporaryDirectory();
+      // One file per photo version: the link changes when the photo does.
+      final file = File('${dir.path}/reminder_${url.hashCode}.img');
+      await file.writeAsBytes(bytes, flush: true);
+      return file.path;
+    } catch (_) {
+      return null;
+    } finally {
+      client.close(force: true);
+    }
   }
 
   Future<void> _onForegroundMessage(RemoteMessage message) async {
@@ -191,6 +259,25 @@ class PushNotificationServiceImpl implements PushNotificationService {
                 ? 'cycle'
                 : null);
     final alarm = data['alert_style'] == 'alarm';
+    if (data['type'] == 'medication_reminder') {
+      _alerts.add(ReminderAlert(
+        title: notification.title ?? '',
+        body: notification.body ?? '',
+        imageUrl: data['image'] as String?,
+      ));
+    }
+    // The user's photo of the medicine: shown large, so the medicine can be
+    // recognised without reading its name.
+    final picture = await _downloadPicture(data['image'] as String?);
+    final style = picture == null
+        ? null
+        : BigPictureStyleInformation(
+            FilePathAndroidBitmap(picture),
+            largeIcon: FilePathAndroidBitmap(picture),
+            contentTitle: notification.title,
+            summaryText: notification.body,
+          );
+    final largeIcon = picture == null ? null : FilePathAndroidBitmap(picture);
     try {
       await localNotifications.show(
         tag != null ? 0 : message.hashCode,
@@ -209,14 +296,23 @@ class PushNotificationServiceImpl implements PushNotificationService {
                   audioAttributesUsage: AudioAttributesUsage.alarm,
                   vibrationPattern: _alarmVibration,
                   tag: tag,
+                  styleInformation: style,
+                  largeIcon: largeIcon,
                 )
               : AndroidNotificationDetails(
-                  _channel.id,
-                  _channel.name,
-                  channelDescription: _channel.description,
-                  importance: Importance.high,
+                  _strongChannel.id,
+                  _strongChannel.name,
+                  channelDescription: _strongChannel.description,
+                  importance: Importance.max,
                   priority: Priority.high,
+                  vibrationPattern: _reminderVibration,
+                  enableLights: true,
+                  ledColor: const Color(0xFF3368A0),
+                  ledOnMs: 600,
+                  ledOffMs: 400,
                   tag: tag,
+                  styleInformation: style,
+                  largeIcon: largeIcon,
                 ),
         ),
       );

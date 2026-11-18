@@ -15,14 +15,19 @@ abstract class PrescriptionScanner {
 
 class PrescriptionScannerImpl implements PrescriptionScanner {
   final ImagePicker picker;
-  PrescriptionScannerImpl(this.picker);
+
+  /// Opens the app's own camera screen; returns the photo's path, or null
+  /// if the user went back. (The phone's camera app is not used: see
+  /// `takePhoto`.)
+  final Future<String?> Function() takeCameraPhoto;
+
+  PrescriptionScannerImpl(this.picker, {required this.takeCameraPhoto});
 
   @override
   Future<String?> pickImage(ScanSource source) async {
+    if (source == ScanSource.camera) return takeCameraPhoto();
     final file = await picker.pickImage(
-      source: source == ScanSource.camera
-          ? ImageSource.camera
-          : ImageSource.gallery,
+      source: ImageSource.gallery,
       // Large enough for small print, small enough to process quickly.
       maxWidth: 2400,
       maxHeight: 2400,

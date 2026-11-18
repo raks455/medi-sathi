@@ -41,6 +41,10 @@ class ProfileRemoteDataSource {
         return profileFromJson(res.data as Map<String, dynamic>);
       });
 
+  /// The language reminders are written in ('en' or 'ne').
+  Future<void> setLanguage(String code) => dioGuard(() => dio
+      .put(ApiConstants.profileLanguage, data: {'language': code}));
+
   Future<UserProfile> save(UserProfile profile) => dioGuard(() async {
         final body = profileToJson(profile)..remove('email');
         final res = await dio.put(ApiConstants.profile, data: body);

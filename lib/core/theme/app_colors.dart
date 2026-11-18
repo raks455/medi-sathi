@@ -22,11 +22,11 @@ class AppPalette {
     required this.textSecondary,
   });
 
-  /// Calm clinical blues with a soft rose accent on cream.
+  /// Calm clinical blues with a soft rose accent on a cool off-white.
   static const light = AppPalette(
     brightness: Brightness.light,
     primary: Color(0xFF3368A0), // medical blue
-    scaffold: Color(0xFFF2EFE7), // warm cream background
+    scaffold: Color(0xFFF4F7FA), // cool off-white background
     surface: Colors.white,
     tertiary: Color(0xFFC8DFDB), // pale mint (borders, indicators)
     tertiaryLight: Color(0xFFE4EFEC),

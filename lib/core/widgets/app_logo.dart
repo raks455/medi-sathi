@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_assets.dart';
+import '../l10n/l10n.dart';
 
 /// The MediSathi capsule-friend badge.
 ///
@@ -26,7 +27,7 @@ class AppLogo extends StatelessWidget {
       height: size,
       fit: BoxFit.contain,
       filterQuality: FilterQuality.high,
-      semanticLabel: 'MediSathi logo',
+      semanticLabel: 'MediSathi logo'.tr,
     );
 
     return Container(

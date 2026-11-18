@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../l10n/l10n.dart';
 import '../error/exceptions.dart';
 
 /// Converts a DioException into a friendly app exception.
@@ -10,10 +11,11 @@ Exception mapDioException(DioException e) {
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
       return NetworkException(
-          'The server is taking too long to respond. It may be waking up, please try again in a moment.');
+          'The server is taking too long to respond. It may be waking up, please try again in a moment.'
+              .tr);
     case DioExceptionType.connectionError:
       return NetworkException(
-          'Cannot reach the server. Please check your internet connection.');
+          'Cannot reach the server. Please check your internet connection.'.tr);
     default:
       break;
   }
@@ -32,8 +34,9 @@ String? _extractMessage(dynamic data) {
   // FastAPI's answer for a path the server does not have: the app is newer
   // than the deployed backend.
   if (detail == 'Not Found' || detail == 'Method Not Allowed') {
-    return 'This feature is not available on the server yet. '
-        'Please try again later.';
+    return ('This feature is not available on the server yet. '
+            'Please try again later.')
+        .tr;
   }
   if (detail is String) return detail;
 
@@ -55,15 +58,15 @@ String? _extractMessage(dynamic data) {
 String _fallback(int? code) {
   switch (code) {
     case 401:
-      return 'Incorrect email or password.';
+      return 'Incorrect email or password.'.tr;
     case 409:
-      return 'An account with this email already exists.';
+      return 'An account with this email already exists.'.tr;
     case 422:
-      return 'Please check the details you entered.';
+      return 'Please check the details you entered.'.tr;
     default:
       if (code != null && code >= 500) {
-        return 'Server error. Please try again later.';
+        return 'Server error. Please try again later.'.tr;
       }
-      return 'Something went wrong. Please try again.';
+      return 'Something went wrong. Please try again.'.tr;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_info.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/external_links.dart';
 import '../../../../core/widgets/info_widgets.dart';
@@ -25,7 +26,7 @@ class AboutUsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title:
-            const Text('About us', style: TextStyle(fontWeight: FontWeight.w700)),
+            Text('About us'.tr, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -40,23 +41,23 @@ class AboutUsPage extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.groups_rounded, color: Colors.white, size: 34),
-                SizedBox(height: 12),
+                const Icon(Icons.groups_rounded, color: Colors.white, size: 34),
+                const SizedBox(height: 12),
                 Text(
-                  'Our mission',
-                  style: TextStyle(
+                  'Our mission'.tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
-                  'Help everyone take the right medicine at the right time.',
-                  style: TextStyle(color: Colors.white, height: 1.4),
+                  'Help everyone take the right medicine at the right time.'.tr,
+                  style: const TextStyle(color: Colors.white, height: 1.4),
                 ),
               ],
             ),
@@ -66,11 +67,17 @@ class AboutUsPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                '${AppInfo.appName} ("Sathi" means companion) is made by '
-                '${AppInfo.publisher} in ${AppInfo.country}. We saw how easy it '
-                'is to forget a dose, run out of a medicine, or lose track of '
-                'a family member\'s treatment, so we built a simple companion '
-                'that reminds, tracks and helps you stay on schedule.',
+                ('{app} ("Sathi" means companion) is made by '
+                        '{publisher} in {country}. We saw how easy it '
+                        'is to forget a dose, run out of a medicine, or lose '
+                        'track of a family member\'s treatment, so we built a '
+                        'simple companion that reminds, tracks and helps you '
+                        'stay on schedule.')
+                    .trArgs({
+                  'app': AppInfo.appName,
+                  'publisher': AppInfo.publisher.tr,
+                  'country': AppInfo.country.tr,
+                }),
                 style: body,
               ),
             ],
@@ -93,8 +100,10 @@ class AboutUsPage extends StatelessWidget {
                     to: AppInfo.supportEmail,
                     subject: '${AppInfo.appName}: hello');
                 if (!ok && context.mounted) {
-                  showInfoSnack(context,
-                      'No email app found. Write to ${AppInfo.supportEmail}',
+                  showInfoSnack(
+                      context,
+                      'No email app found. Write to {email}'
+                          .trArgs({'email': AppInfo.supportEmail}),
                       error: true);
                 }
               },

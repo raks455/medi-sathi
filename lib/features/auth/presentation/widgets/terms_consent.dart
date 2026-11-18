@@ -2,8 +2,31 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+
+/// Cuts a translated sentence at `{terms}` and `{privacy}` so the two names
+/// can be links, in whatever order the language puts them.
+List<T> _withLinks<T>(
+  String sentence, {
+  required T Function(String text) plain,
+  required T Function(String name) link,
+}) {
+  final parts = <T>[];
+  sentence.splitMapJoin(
+    RegExp(r'\{(terms|privacy)\}'),
+    onMatch: (m) {
+      parts.add(link(m[1]!));
+      return '';
+    },
+    onNonMatch: (text) {
+      if (text.isNotEmpty) parts.add(plain(text));
+      return '';
+    },
+  );
+  return parts;
+}
 
 /// "I agree to the Terms & Conditions and Privacy Policy" checkbox. The two
 /// names open the documents.
@@ -74,19 +97,19 @@ class _TermsConsentState extends State<TermsConsent> {
                   TextSpan(
                     style: TextStyle(
                         height: 1.4, color: AppColors.textSecondary),
-                    children: [
-                      const TextSpan(text: 'I have read and agree to the '),
-                      TextSpan(
-                          text: 'Terms & Conditions',
-                          style: link,
-                          recognizer: _termsTap),
-                      const TextSpan(text: ' and '),
-                      TextSpan(
-                          text: 'Privacy Policy',
-                          style: link,
-                          recognizer: _privacyTap),
-                      const TextSpan(text: '.'),
-                    ],
+                    children: _withLinks<InlineSpan>(
+                      'I have read and agree to the {terms} and {privacy}.'.tr,
+                      plain: (text) => TextSpan(text: text),
+                      link: (name) => name == 'terms'
+                          ? TextSpan(
+                              text: 'Terms & Conditions'.tr,
+                              style: link,
+                              recognizer: _termsTap)
+                          : TextSpan(
+                              text: 'Privacy Policy'.tr,
+                              style: link,
+                              recognizer: _privacyTap),
+                    ),
                   ),
                 ),
               ),
@@ -97,8 +120,9 @@ class _TermsConsentState extends State<TermsConsent> {
           Padding(
             padding: const EdgeInsets.only(left: 40, top: 4),
             child: Text(
-              'Please accept the Terms & Conditions and Privacy Policy to '
-              'continue.',
+              ('Please accept the Terms & Conditions and Privacy Policy to '
+                      'continue.')
+                  .tr,
               style: TextStyle(
                   fontSize: 12.5, color: Theme.of(context).colorScheme.error),
             ),
@@ -131,13 +155,13 @@ class LegalNotice extends StatelessWidget {
     return Wrap(
       alignment: WrapAlignment.center,
       runSpacing: 2,
-      children: [
-        Text('By continuing, you agree to our ', style: base),
-        link('Terms & Conditions', AppRoutes.terms),
-        Text(' and ', style: base),
-        link('Privacy Policy', AppRoutes.privacyPolicy),
-        Text('.', style: base),
-      ],
+      children: _withLinks<Widget>(
+        'By continuing, you agree to our {terms} and {privacy}.'.tr,
+        plain: (text) => Text(text, style: base),
+        link: (name) => name == 'terms'
+            ? link('Terms & Conditions'.tr, AppRoutes.terms)
+            : link('Privacy Policy'.tr, AppRoutes.privacyPolicy),
+      ),
     );
   }
 }

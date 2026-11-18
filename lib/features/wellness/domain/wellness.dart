@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../core/l10n/l10n.dart';
 
 // ---- vitals -----------------------------------------------------------------
 
@@ -200,15 +201,15 @@ class HealthLabels {
   HealthLabels._();
 
   static String category(String? code) => switch (code) {
-        'underweight' => 'Underweight',
-        'normal' => 'Healthy',
-        'overweight' => 'Overweight',
-        'obese' => 'Obese',
-        'low' => 'Low',
-        'elevated' => 'Elevated',
-        'high_stage_1' => 'High (stage 1)',
-        'high_stage_2' => 'High (stage 2)',
-        'crisis' => 'Very high – seek care',
+        'underweight' => 'Underweight'.tr,
+        'normal' => 'Healthy'.tr,
+        'overweight' => 'Overweight'.tr,
+        'obese' => 'Obese'.tr,
+        'low' => 'Low'.tr,
+        'elevated' => 'Elevated'.tr,
+        'high_stage_1' => 'High (stage 1)'.tr,
+        'high_stage_2' => 'High (stage 2)'.tr,
+        'crisis' => 'Very high – seek care'.tr,
         _ => '',
       };
 
@@ -235,6 +236,12 @@ enum Mood {
   final String emoji;
   final Color color;
   const Mood(this.apiValue, this.label, this.emoji, this.color);
+
+  /// [label] in the current language. 'Low' also names a blood pressure
+  /// category, which is a different word in Nepali, so the mood has its own
+  /// entry there.
+  String get localizedLabel =>
+      this == low && L10n.isNepali ? 'Low mood'.tr : label.tr;
 
   static Mood fromApi(String v) =>
       values.firstWhere((m) => m.apiValue == v, orElse: () => okay);

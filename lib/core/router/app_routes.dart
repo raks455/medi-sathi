@@ -19,6 +19,8 @@ class AppRoutes {
   static const vitals = '/vitals';
   static const periodTracker = '/period-tracker';
   static const pregnancyTracker = '/pregnancy-tracker';
+  static const water = '/water';
+  static const fasting = '/fasting';
 
   static const home = '/';
   static const notifications = '/notifications';

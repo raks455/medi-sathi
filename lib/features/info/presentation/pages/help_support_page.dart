@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_info.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/external_links.dart';
@@ -11,6 +12,8 @@ import '../../../../core/widgets/info_widgets.dart';
 class HelpSupportPage extends StatelessWidget {
   const HelpSupportPage({super.key});
 
+  /// English texts, translated where they are shown. `{email}` is filled in
+  /// with the support address.
   static const _faqs = [
     (
       'How do I add a medicine?',
@@ -62,7 +65,7 @@ class HelpSupportPage extends StatelessWidget {
     (
       'How do I delete my account?',
       'Open the Profile menu and tap "Delete account", or email '
-          '${AppInfo.supportEmail} from the address you signed up with. We '
+          '{email} from the address you signed up with. We '
           'delete your account and all of its data within 30 days.'
     ),
   ];
@@ -74,7 +77,9 @@ class HelpSupportPage extends StatelessWidget {
     );
     if (!ok && context.mounted) {
       showInfoSnack(
-          context, 'No email app found. Write to ${AppInfo.supportEmail}',
+          context,
+          'No email app found. Write to {email}'
+              .trArgs({'email': AppInfo.supportEmail}),
           error: true);
     }
   }
@@ -83,8 +88,8 @@ class HelpSupportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help & support',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Help & support'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
@@ -106,14 +111,14 @@ class HelpSupportPage extends StatelessWidget {
                   childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   expandedAlignment: Alignment.centerLeft,
                   title: Text(
-                    faq.$1,
+                    faq.$1.tr,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
                   children: [
-                    Text(faq.$2,
+                    Text(faq.$2.trArgs({'email': AppInfo.supportEmail}),
                         style: TextStyle(
                             height: 1.5, color: AppColors.textSecondary)),
                   ],

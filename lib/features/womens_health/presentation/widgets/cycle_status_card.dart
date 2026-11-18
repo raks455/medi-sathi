@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/womens_health.dart';
 import '../cubit/womens_health_cubits.dart';
@@ -26,27 +27,33 @@ class CycleStatusCard extends StatelessWidget {
         String body;
         String? footer;
         if (o.lastPeriodStart == null) {
-          title = 'Know your cycle';
+          title = 'Know your cycle'.tr;
           body = 'Log your period to see which phase you are in and get a '
-              'reminder before the next one.';
+                  'reminder before the next one.'
+              .tr;
         } else {
           final current = o.periodOn(today, today);
           final info = CyclePhaseInfo.of(current != null ? 'menstrual' : o.phase);
           final day = current != null
-              ? 'Period day ${today.difference(dayOnly(current.startDate)).inDays + 1}'
-              : 'Cycle day ${o.cycleDay ?? '-'}';
-          title = info == null ? day : '$day · ${info.title}';
-          body = info?.description ?? '';
+              ? 'Period day {n}'.trArgs({
+                  'n': today.difference(dayOnly(current.startDate)).inDays + 1,
+                })
+              : 'Cycle day {n}'.trArgs({'n': o.cycleDay ?? '-'});
+          title = info == null ? day : '$day · ${info.title.tr}';
+          body = info?.description.tr ?? '';
           final days = o.daysUntilNextPeriod;
           if (current == null && days != null && o.nextPeriodStart != null) {
             final date = DateFormat.MMMd().format(o.nextPeriodStart!);
             footer = days > 1
-                ? 'Next period in $days days ($date)'
+                ? 'Next period in {n} days ({date})'
+                    .trArgs({'n': days, 'date': date})
                 : days == 1
-                    ? 'Next period expected tomorrow'
+                    ? 'Next period expected tomorrow'.tr
                     : days == 0
-                        ? 'Period expected today'
-                        : 'Period ${-days} day${days == -1 ? '' : 's'} late';
+                        ? 'Period expected today'.tr
+                        : days == -1
+                            ? 'Period 1 day late'.tr
+                            : 'Period {n} days late'.trArgs({'n': -days});
           }
         }
 

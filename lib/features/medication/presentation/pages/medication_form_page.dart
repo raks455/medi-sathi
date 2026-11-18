@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../auth/presentation/widgets/auth_submit_button.dart';
@@ -26,7 +27,8 @@ class MedicationFormPage extends StatefulWidget {
 class _MedicationFormPageState extends State<MedicationFormPage> {
   static const _maxTimes = 12; // API limit
   static const _allDays = {0, 1, 2, 3, 4, 5, 6};
-  static final _dateFormat = DateFormat('d MMM yyyy');
+  // Made when used, so it follows a change of language.
+  static DateFormat get _dateFormat => DateFormat('d MMM yyyy');
 
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _name;
@@ -123,7 +125,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
     final picked = await showTimePicker(
       context: context,
       initialTime: const TimeOfDay(hour: 8, minute: 0),
-      helpText: 'Reminder time',
+      helpText: 'Reminder time'.tr,
     );
     if (picked == null || !mounted) return;
     if (_times.contains(picked)) return; // the API rejects duplicates
@@ -147,7 +149,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
       initialDate: initial,
       firstDate: first,
       lastDate: DateTime(2100),
-      helpText: isStart ? 'Start date' : 'End date (last day)',
+      helpText: isStart ? 'Start date'.tr : 'End date (last day)'.tr,
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -169,9 +171,9 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
     String? scheduleError;
     if (_hasSchedule) {
       if (_times.isEmpty) {
-        scheduleError = 'Add at least one reminder time';
+        scheduleError = 'Add at least one reminder time'.tr;
       } else if (_days.isEmpty) {
-        scheduleError = 'Select at least one day';
+        scheduleError = 'Select at least one day'.tr;
       }
     }
     setState(() => _scheduleError = scheduleError);
@@ -226,7 +228,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: Text(state.actionMessage ?? 'Something went wrong'),
+          content: Text(state.actionMessage ?? 'Something went wrong'.tr),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ));
@@ -248,7 +250,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(_isEdit ? 'Edit medicine' : 'Add medicine',
+            title: Text(_isEdit ? 'Edit medicine'.tr : 'Add medicine'.tr,
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
           body: SafeArea(
@@ -261,17 +263,17 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                   children: [
                     if (widget.prefill != null)
                       const _ScanNotice(),
-                    const _SectionTitle('Medicine'),
+                    _SectionTitle('Medicine'.tr),
                     TextFormField(
                       controller: _name,
                       maxLength: 150,
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.next,
-                      validator: (v) => Validators.requiredField(v, 'Name'),
-                      decoration: const InputDecoration(
-                        labelText: 'Medicine name',
-                        hintText: 'e.g. Paracetamol',
-                        prefixIcon: Icon(Icons.medication_outlined),
+                      validator: (v) => Validators.requiredField(v, 'Name'.tr),
+                      decoration: InputDecoration(
+                        labelText: 'Medicine name'.tr,
+                        hintText: 'e.g. Paracetamol'.tr,
+                        prefixIcon: const Icon(Icons.medication_outlined),
                         counterText: '',
                       ),
                     ),
@@ -281,10 +283,10 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                       isExpanded: true,
                       borderRadius: BorderRadius.circular(16),
                       dropdownColor: AppColors.surface,
-                      validator: (v) => v == null ? 'Type is required' : null,
-                      decoration: const InputDecoration(
-                        labelText: 'Type',
-                        prefixIcon: Icon(Icons.category_outlined),
+                      validator: (v) => v == null ? 'Type is required'.tr : null,
+                      decoration: InputDecoration(
+                        labelText: 'Type'.tr,
+                        prefixIcon: const Icon(Icons.category_outlined),
                       ),
                       items: [
                         for (final t in types)
@@ -300,20 +302,20 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                       controller: _dose,
                       maxLength: 100,
                       textInputAction: TextInputAction.next,
-                      validator: (v) => Validators.requiredField(v, 'Dose'),
-                      decoration: const InputDecoration(
-                        labelText: 'Dose',
-                        hintText: 'e.g. 500 mg',
-                        prefixIcon: Icon(Icons.scale_outlined),
+                      validator: (v) => Validators.requiredField(v, 'Dose'.tr),
+                      decoration: InputDecoration(
+                        labelText: 'Dose'.tr,
+                        hintText: 'e.g. 500 mg'.tr,
+                        prefixIcon: const Icon(Icons.scale_outlined),
                         counterText: '',
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const _SectionTitle('When to take it'),
+                    _SectionTitle('When to take it'.tr),
                     FormField<String>(
                       initialValue: _timing,
                       validator: (_) =>
-                          _timing == null ? 'Choose when to take it' : null,
+                          _timing == null ? 'Choose when to take it'.tr : null,
                       builder: (field) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -345,22 +347,23 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                       minLines: 2,
                       maxLines: 4,
                       textCapitalization: TextCapitalization.sentences,
-                      decoration: const InputDecoration(
-                        labelText: 'Instructions (optional)',
-                        hintText: 'e.g. Take 1 tablet twice a day with water',
+                      decoration: InputDecoration(
+                        labelText: 'Instructions (optional)'.tr,
+                        hintText:
+                            'e.g. Take 1 tablet twice a day with water'.tr,
                         alignLabelWithHint: true,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const _SectionTitle('Schedule'),
+                    _SectionTitle('Schedule'.tr),
                     _buildScheduleCard(context),
                     if (_scheduleError != null) _ErrorText(_scheduleError!),
                     const SizedBox(height: 12),
-                    const _SectionTitle('Stock and refills'),
+                    _SectionTitle('Stock and refills'.tr),
                     _buildStockCard(),
                     const SizedBox(height: 28),
                     AuthSubmitButton(
-                      label: _isEdit ? 'Save changes' : 'Add medicine',
+                      label: _isEdit ? 'Save changes'.tr : 'Add medicine'.tr,
                       isLoading: saving,
                       onPressed: _submit,
                     ),
@@ -394,12 +397,12 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
               _hasSchedule = v;
               _scheduleError = null;
             }),
-            title: const Text('Take on a schedule',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            title: Text('Take on a schedule'.tr,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
             subtitle: Text(
               _hasSchedule
-                  ? 'Set the times you take this medicine'
-                  : 'Off: taken only when needed',
+                  ? 'Set the times you take this medicine'.tr
+                  : 'Off: taken only when needed'.tr,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -410,7 +413,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _FieldLabel('Times'),
+                  _FieldLabel('Times'.tr),
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
@@ -425,20 +428,20 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                         ActionChip(
                           avatar: Icon(Icons.add_rounded,
                               size: 18, color: AppColors.primary),
-                          label: const Text('Add time'),
+                          label: Text('Add time'.tr),
                           onPressed: _addTime,
                         ),
                     ],
                   ),
                   const SizedBox(height: 14),
-                  const _FieldLabel('Days'),
+                  _FieldLabel('Days'.tr),
                   Wrap(
                     spacing: 6,
                     runSpacing: 4,
                     children: [
                       for (var d = 0; d < 7; d++)
                         FilterChip(
-                          label: Text(MedicationFormat.dayNames[d]),
+                          label: Text(MedicationFormat.dayNames[d].tr),
                           selected: _days.contains(d),
                           showCheckmark: false,
                           onSelected: (on) => setState(() {
@@ -450,12 +453,12 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  const _FieldLabel('Course dates (optional)'),
+                  _FieldLabel('Course dates (optional)'.tr),
                   Row(
                     children: [
                       Expanded(
                         child: _DateField(
-                          label: 'Start',
+                          label: 'Start'.tr,
                           value: _startDate == null
                               ? null
                               : _dateFormat.format(_startDate!),
@@ -466,7 +469,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _DateField(
-                          label: 'End',
+                          label: 'End'.tr,
                           value: _endDate == null
                               ? null
                               : _dateFormat.format(_endDate!),
@@ -484,8 +487,8 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
               onChanged: (v) => setState(() => _remindersEnabled = v),
               secondary: const Icon(Icons.notifications_active_outlined,
                   color: AppColors.icon),
-              title: const Text('Remind me',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              title: Text('Remind me'.tr,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
             if (_remindersEnabled)
               Padding(
@@ -493,7 +496,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const _FieldLabel('Alert me with'),
+                    _FieldLabel('Alert me with'.tr),
                     Wrap(
                       spacing: 8,
                       children: [
@@ -503,7 +506,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                               color: _alertStyle == AlertStyle.notification
                                   ? Colors.white
                                   : AppColors.primary),
-                          label: const Text('Notification'),
+                          label: Text('Notification'.tr),
                           selected: _alertStyle == AlertStyle.notification,
                           showCheckmark: false,
                           onSelected: (_) => setState(
@@ -515,7 +518,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                               color: _alertStyle == AlertStyle.alarm
                                   ? Colors.white
                                   : AppColors.primary),
-                          label: const Text('Alarm'),
+                          label: Text('Alarm'.tr),
                           selected: _alertStyle == AlertStyle.alarm,
                           showCheckmark: false,
                           onSelected: (_) =>
@@ -527,8 +530,9 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                     Text(
                       _alertStyle == AlertStyle.alarm
                           ? 'Rings with your alarm sound at alarm volume and '
-                              'vibrates strongly.'
-                          : 'A normal notification with its usual sound.',
+                                  'vibrates strongly.'
+                              .tr
+                          : 'A normal notification with its usual sound.'.tr,
                       style: TextStyle(
                           fontSize: 12, color: AppColors.textSecondary),
                     ),
@@ -545,7 +549,9 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
     String? positive(String? v, {required bool allowZero}) {
       if (!_trackStock) return null;
       final n = double.tryParse(v?.trim() ?? '');
-      if (n == null || n < 0 || (!allowZero && n == 0)) return 'Enter a number';
+      if (n == null || n < 0 || (!allowZero && n == 0)) {
+        return 'Enter a number'.tr;
+      }
       return null;
     }
 
@@ -566,12 +572,12 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
           SwitchListTile(
             value: _trackStock,
             onChanged: (v) => setState(() => _trackStock = v),
-            title: const Text('Track my stock',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            title: Text('Track my stock'.tr,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
             subtitle: Text(
               _trackStock
-                  ? 'Each dose you mark as taken is deducted'
-                  : 'Off: no stock count or refill reminders',
+                  ? 'Each dose you mark as taken is deducted'.tr
+                  : 'Off: no stock count or refill reminders'.tr,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -588,9 +594,9 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                       keyboardType: numberKeyboard,
                       inputFormatters: numberFormat,
                       validator: (v) => positive(v, allowZero: true),
-                      decoration: const InputDecoration(
-                        labelText: 'In stock now',
-                        hintText: 'e.g. 30',
+                      decoration: InputDecoration(
+                        labelText: 'In stock now'.tr,
+                        hintText: 'e.g. 30'.tr,
                       ),
                     ),
                   ),
@@ -601,9 +607,9 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                       keyboardType: numberKeyboard,
                       inputFormatters: numberFormat,
                       validator: (v) => positive(v, allowZero: false),
-                      decoration: const InputDecoration(
-                        labelText: 'Used per dose',
-                        hintText: 'e.g. 1',
+                      decoration: InputDecoration(
+                        labelText: 'Used per dose'.tr,
+                        hintText: 'e.g. 1'.tr,
                       ),
                     ),
                   ),
@@ -613,7 +619,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
             Padding(
               padding: EdgeInsets.fromLTRB(16, 6, 16, 4),
               child: Text(
-                'Count in your own unit: tablets, ml, puffs...',
+                'Count in your own unit: tablets, ml, puffs...'.tr,
                 style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ),
@@ -622,8 +628,8 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
               onChanged: (v) => setState(() => _refillReminder = v),
               secondary: const Icon(Icons.inventory_2_outlined,
                   color: AppColors.icon),
-              title: const Text('Remind me to refill',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              title: Text('Remind me to refill'.tr,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
             if (_refillReminder)
               Padding(
@@ -636,17 +642,17 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                         Expanded(
                           child: Text(
                             _remindDaysBefore == 0
-                                ? 'Only on the day it runs out'
+                                ? 'Only on the day it runs out'.tr
                                 : _remindDaysBefore == 1
-                                    ? '1 day before it runs out'
-                                    : '$_remindDaysBefore days before it '
-                                        'runs out',
+                                    ? '1 day before it runs out'.tr
+                                    : '{n} days before it runs out'
+                                        .trArgs({'n': _remindDaysBefore}),
                             style: TextStyle(
                                 color: AppColors.textPrimary),
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Fewer days',
+                          tooltip: 'Fewer days'.tr,
                           icon: const Icon(Icons.remove_circle_outline_rounded),
                           color: AppColors.primary,
                           onPressed: _remindDaysBefore <= 0
@@ -654,7 +660,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                               : () => setState(() => _remindDaysBefore--),
                         ),
                         IconButton(
-                          tooltip: 'More days',
+                          tooltip: 'More days'.tr,
                           icon: const Icon(Icons.add_circle_outline_rounded),
                           color: AppColors.primary,
                           onPressed: _remindDaysBefore >= _maxRemindDays
@@ -669,12 +675,15 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                         _hasSchedule
                             ? (_remindDaysBefore == 0
                                 ? 'You get one reminder, on the day your '
-                                    'stock runs out.'
+                                        'stock runs out.'
+                                    .tr
                                 : 'You get a second reminder on the day '
-                                    'your stock runs out.')
+                                        'your stock runs out.'
+                                    .tr)
                             // The run-out date is worked out from the schedule.
                             : 'Refill reminders need a schedule. Without one '
-                                'the stock is only counted.',
+                                    'the stock is only counted.'
+                                .tr,
                         style: TextStyle(
                             fontSize: 12, color: AppColors.textSecondary),
                       ),
@@ -713,7 +722,8 @@ class _ScanNotice extends StatelessWidget {
           Expanded(
             child: Text(
               'Filled in from your scan. Check every detail against the '
-              'prescription before saving.',
+                      'prescription before saving.'
+                  .tr,
               style: TextStyle(color: AppColors.textPrimary),
             ),
           ),
@@ -824,7 +834,7 @@ class _DateField extends StatelessWidget {
               )
             else
               IconButton(
-                tooltip: 'Clear $label date',
+                tooltip: 'Clear {label} date'.trArgs({'label': label}),
                 visualDensity: VisualDensity.compact,
                 icon: Icon(Icons.close_rounded,
                     size: 18, color: AppColors.textSecondary),

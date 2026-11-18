@@ -37,6 +37,9 @@ class ScheduledDose extends Equatable {
   final DoseStatus status;
   final DateTime? respondedAt;
 
+  /// The user's photo of the medicine, if they added one.
+  final String? photoUrl;
+
   const ScheduledDose({
     required this.doseKey,
     required this.medicationId,
@@ -50,6 +53,7 @@ class ScheduledDose extends Equatable {
     required this.localTime,
     required this.status,
     this.respondedAt,
+    this.photoUrl,
   });
 
   ScheduledDose withStatus(DoseStatus status, DateTime? respondedAt) {
@@ -66,11 +70,13 @@ class ScheduledDose extends Equatable {
       localTime: localTime,
       status: status,
       respondedAt: respondedAt,
+      photoUrl: photoUrl,
     );
   }
 
   @override
-  List<Object?> get props => [doseKey, status, respondedAt, medicationName, dose];
+  List<Object?> get props =>
+      [doseKey, status, respondedAt, medicationName, dose, photoUrl];
 }
 
 class AdherenceSummary extends Equatable {

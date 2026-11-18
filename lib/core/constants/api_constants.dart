@@ -32,6 +32,8 @@ class ApiConstants {
 
   /// Path of one medicine (GET / PATCH / DELETE).
   static String medication(String id) => '$_api/medications/$id';
+  /// The user's photo of a medicine (PUT multipart `file`, DELETE).
+  static String medicationPhoto(String id) => '$_api/medications/$id/photo';
   static String stopMedication(String id) => '$_api/medications/$id/stop';
   static String resumeMedication(String id) => '$_api/medications/$id/resume';
 
@@ -75,4 +77,5 @@ static const testNotification="$_api/notifications/test";
 
   /// My name and health details (GET / PUT).
   static const profile = '$_api/profile';
+  static const profileLanguage = '$_api/profile/language';
 }

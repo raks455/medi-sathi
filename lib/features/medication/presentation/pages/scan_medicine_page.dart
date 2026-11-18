@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
@@ -53,8 +54,8 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
     final details = await showRecordDetailsSheet(
       context,
       folder: RecordFolder.prescriptions,
-      suggestedTitle:
-          'Prescription ${DateFormat.yMMMd().format(DateTime.now())}',
+      suggestedTitle: 'Prescription {date}'
+          .trArgs({'date': DateFormat.yMMMd().format(DateTime.now())}),
     );
     if (details == null || !mounted) return;
     setState(() => _savingPhoto = true);
@@ -85,10 +86,12 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
         InfoTile(
           icon: saved ? Icons.check_circle_rounded : Icons.folder_shared_outlined,
           color: saved ? AppColors.success : null,
-          title: saved ? 'Saved to Health Records' : 'Save to Health Records',
+          title: saved
+              ? 'Saved to Health Records'.tr
+              : 'Save to Health Records'.tr,
           subtitle: saved
-              ? 'Find it under Profile > Health Records'
-              : 'Keep this prescription photo in your Prescriptions folder',
+              ? 'Find it under Profile > Health Records'.tr
+              : 'Keep this prescription photo in your Prescriptions folder'.tr,
           trailing: _savingPhoto
               ? const SizedBox(
                   width: 20,
@@ -109,8 +112,8 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan medicine',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Scan medicine'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: SafeArea(
         child: BlocBuilder<PrescriptionScanBloc, PrescriptionScanState>(
@@ -123,7 +126,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
-                      Text('Reading the picture...',
+                      Text('Reading the picture...'.tr,
                           style: TextStyle(color: AppColors.textSecondary)),
                     ],
                   ),
@@ -132,7 +135,8 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
                 if (state.medicines.isNotEmpty) return _buildResults(state);
                 return _buildStart(
                   notice: 'No medicines were found in that picture. '
-                      'Try a sharper, well-lit photo, or add it manually.',
+                          'Try a sharper, well-lit photo, or add it manually.'
+                      .tr,
                   photoPath: state.imagePath,
                 );
               case ScanStatus.failure:
@@ -165,7 +169,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
         ),
         const SizedBox(height: 20),
         Text(
-          'Scan a prescription or label',
+          'Scan a prescription or label'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 20,
@@ -176,8 +180,9 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
         const SizedBox(height: 8),
         Text(
           'Take a clear photo of printed text. MediSathi reads the medicine '
-          'names and doses on your phone, and you check each one before it '
-          'is saved.',
+                  'names and doses on your phone, and you check each one before it '
+                  'is saved.'
+              .tr,
           textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textSecondary),
         ),
@@ -207,17 +212,17 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
         ElevatedButton.icon(
           onPressed: () => _scan(ScanSource.camera),
           icon: const Icon(Icons.photo_camera_outlined),
-          label: const Text('Take a photo'),
+          label: Text('Take a photo'.tr),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: () => _scan(ScanSource.gallery),
           icon: const Icon(Icons.photo_library_outlined),
-          label: const Text('Choose from gallery'),
+          label: Text('Choose from gallery'.tr),
         ),
         const SizedBox(height: 20),
         Text(
-          'Works best with printed text. Handwriting is often misread.',
+          'Works best with printed text. Handwriting is often misread.'.tr,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
@@ -232,8 +237,8 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
       children: [
         Text(
           medicines.length == 1
-              ? 'Found 1 medicine'
-              : 'Found ${medicines.length} medicines',
+              ? 'Found 1 medicine'.tr
+              : 'Found {n} medicines'.trArgs({'n': medicines.length}),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -243,7 +248,8 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
         const SizedBox(height: 4),
         Text(
           'Scans can be wrong. Open each one, compare it with your '
-          'prescription, then save it.',
+                  'prescription, then save it.'
+              .tr,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         _savePhotoCard(state.imagePath),
@@ -261,11 +267,11 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
         OutlinedButton.icon(
           onPressed: () => _scan(ScanSource.camera),
           icon: const Icon(Icons.photo_camera_outlined),
-          label: const Text('Scan another'),
+          label: Text('Scan another'.tr),
         ),
         TextButton(
           onPressed: () => _scan(ScanSource.gallery),
-          child: const Text('Choose from gallery'),
+          child: Text('Choose from gallery'.tr),
         ),
       ],
     );
@@ -291,12 +297,13 @@ class _ScannedCard extends StatelessWidget {
       if (m.medicineType != null) MedicationFormat.label(m.medicineType!),
       if (m.intakeTiming != null) MedicationFormat.label(m.intakeTiming!),
       if (m.asNeeded)
-        'As needed'
+        'As needed'.tr
       else if (m.reminderTimes.isNotEmpty)
         m.reminderTimes
             .map((t) => MedicationFormat.displayTime(context, t))
             .join(', '),
-      if (m.durationDays != null) '${m.durationDays} days',
+      if (m.durationDays != null)
+        '{n} days'.trArgs({'n': m.durationDays}),
     ];
 
     return Container(
@@ -366,16 +373,16 @@ class _ScannedCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: added
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check_circle_rounded,
+                        const Icon(Icons.check_circle_rounded,
                             size: 18, color: AppColors.success),
-                        SizedBox(width: 6),
-                        Text('Added',
-                            style: TextStyle(
+                        const SizedBox(width: 6),
+                        Text('Added'.tr,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.success)),
                       ],
@@ -383,7 +390,7 @@ class _ScannedCard extends StatelessWidget {
                   )
                 : TextButton(
                     onPressed: onReview,
-                    child: const Text('Review & add'),
+                    child: Text('Review & add'.tr),
                   ),
           ),
         ],

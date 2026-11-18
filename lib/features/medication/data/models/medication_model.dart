@@ -23,6 +23,7 @@ class MedicationModel {
           : null,
       isStopped: json['is_stopped'] as bool? ?? false,
       stoppedAt: _parseDate(json['stopped_at']),
+      photoUrl: json['photo_url'] as String?,
     );
   }
 

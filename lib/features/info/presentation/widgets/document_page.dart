@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../content/legal_texts.dart';
 
@@ -24,7 +25,7 @@ class DocumentPage extends StatelessWidget {
         fontSize: 15, height: 1.55, color: AppColors.textPrimary);
     return Scaffold(
       appBar: AppBar(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(title.tr, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: SafeArea(
         top: false,
@@ -34,7 +35,8 @@ class DocumentPage extends StatelessWidget {
             if (lastUpdated != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text('Last updated: $lastUpdated',
+                child: Text(
+                    'Last updated: {date}'.trArgs({'date': lastUpdated}),
                     style: TextStyle(
                         fontSize: 13, color: AppColors.textSecondary)),
               ),

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_widgets.dart';
 import '../../domain/wellness.dart';
@@ -18,15 +19,15 @@ class VitalsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weight & vitals',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Weight & vitals'.tr,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: const [_UnitsMenu(), SizedBox(width: 4)],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showAddVitalSheet(context,
             initialType: context.read<VitalsCubit>().state.selected),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add reading'),
+        label: Text('Add reading'.tr),
       ),
       body: BlocBuilder<VitalsCubit, VitalsState>(
         builder: (context, state) {
@@ -55,11 +56,13 @@ class VitalsPage extends StatelessWidget {
                     foregroundColor: AppColors.textPrimary,
                     side: BorderSide(color: AppColors.tertiary, width: 1.2),
                   ),
-                  segments: const [
-                    ButtonSegment(value: VitalType.weight, label: Text('Weight')),
+                  segments: [
                     ButtonSegment(
-                        value: VitalType.bloodPressure, label: Text('BP')),
-                    ButtonSegment(value: VitalType.height, label: Text('Height')),
+                        value: VitalType.weight, label: Text('Weight'.tr)),
+                    ButtonSegment(
+                        value: VitalType.bloodPressure, label: Text('BP'.tr)),
+                    ButtonSegment(
+                        value: VitalType.height, label: Text('Height'.tr)),
                   ],
                   selected: {state.selected},
                   onSelectionChanged: (s) => cubit.select(s.first),
@@ -74,13 +77,16 @@ class VitalsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                 ],
-                SectionLabel('${state.selected.label} history'),
+                SectionLabel('{type} history'
+                    .trArgs({'type': state.selected.label.tr})),
                 if (state.current.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Text(
-                      'No ${state.selected.label.toLowerCase()} readings yet. '
-                      'Tap "Add reading" to log one.',
+                      'No {type} readings yet. Tap "Add reading" to log one.'
+                          .trArgs({
+                        'type': state.selected.label.tr.toLowerCase(),
+                      }),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
@@ -130,14 +136,14 @@ class _UnitsMenu extends StatelessWidget {
               )),
         );
     return PopupMenuButton<Object>(
-      tooltip: 'Units',
+      tooltip: 'Units'.tr,
       icon: const Icon(Icons.straighten_rounded),
       onSelected: (unit) {
         if (unit is WeightUnit) cubit.setWeightUnit(unit);
         if (unit is HeightUnit) cubit.setHeightUnit(unit);
       },
       itemBuilder: (_) => [
-        heading('Weight in'),
+        heading('Weight in'.tr),
         for (final u in WeightUnit.values)
           CheckedPopupMenuItem<Object>(
             value: u,
@@ -145,7 +151,7 @@ class _UnitsMenu extends StatelessWidget {
             child: Text(u.label),
           ),
         const PopupMenuDivider(),
-        heading('Height in'),
+        heading('Height in'.tr),
         for (final u in HeightUnit.values)
           CheckedPopupMenuItem<Object>(
             value: u,
@@ -168,19 +174,21 @@ class _SummaryGrid extends StatelessWidget {
     String? change;
     if (s.weightChange30d != null && s.weightChange30d != 0) {
       final v = s.weightChange30d!;
-      change = '${v > 0 ? '+' : '-'}${formatNumber(unit.fromKg(v.abs()))} '
-          '${unit.label} in 30 days';
+      change = '{change} in 30 days'.trArgs({
+        'change': '${v > 0 ? '+' : '-'}${formatNumber(unit.fromKg(v.abs()))} '
+            '${unit.label}',
+      });
     }
     final cards = [
       _StatCard(
         icon: Icons.monitor_weight_outlined,
-        label: 'Weight',
+        label: 'Weight'.tr,
         value: s.weight == null ? '—' : state.format(s.weight!),
         caption: change,
       ),
       _StatCard(
         icon: Icons.height_rounded,
-        label: 'Height',
+        label: 'Height'.tr,
         value: s.height == null ? '—' : state.format(s.height!),
       ),
       _StatCard(
@@ -188,13 +196,13 @@ class _SummaryGrid extends StatelessWidget {
         label: 'BMI',
         value: s.bmi?.toStringAsFixed(1) ?? '—',
         caption: s.bmi == null
-            ? 'Add weight and height'
+            ? 'Add weight and height'.tr
             : HealthLabels.category(s.bmiCategory),
         captionColor: s.bmi == null ? null : _severityColor(s.bmiCategory),
       ),
       _StatCard(
         icon: Icons.favorite_outline_rounded,
-        label: 'Blood pressure',
+        label: 'Blood pressure'.tr,
         value: s.bloodPressure == null ? '—' : state.format(s.bloodPressure!),
         caption: s.bloodPressure == null
             ? null
@@ -379,9 +387,9 @@ class _TrendChart extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 6, left: 8),
             child: Row(children: [
-              _Legend(color: AppColors.primary, text: 'Systolic'),
+              _Legend(color: AppColors.primary, text: 'Systolic'.tr),
               const SizedBox(width: 16),
-              const _Legend(color: AppColors.icon, text: 'Diastolic'),
+              _Legend(color: AppColors.icon, text: 'Diastolic'.tr),
             ]),
           ),
       ],
@@ -420,15 +428,15 @@ class _ReadingTile extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
-        title: const Text('Delete this reading?'),
+        title: Text('Delete this reading?'.tr),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(d, false),
-              child: const Text('Cancel')),
+              child: Text('Cancel'.tr)),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             onPressed: () => Navigator.pop(d, true),
-            child: const Text('Delete'),
+            child: Text('Delete'.tr),
           ),
         ],
       ),
@@ -445,7 +453,7 @@ class _ReadingTile extends StatelessWidget {
     final r = reading;
     final when = DateFormat.yMMMd().add_jm().format(r.recordedAt.toLocal());
     final extra = [
-      if (r.pulse != null) 'Pulse ${r.pulse}',
+      if (r.pulse != null) 'Pulse {n}'.trArgs({'n': r.pulse}),
       if (r.category != null) HealthLabels.category(r.category),
       if (r.note != null) r.note!,
     ].join(' · ');
@@ -458,14 +466,14 @@ class _ReadingTile extends StatelessWidget {
           style: TextStyle(color: AppColors.textSecondary)),
       isThreeLine: extra.isNotEmpty,
       trailing: PopupMenuButton<String>(
-        tooltip: 'Edit or delete',
+        tooltip: 'Edit or delete'.tr,
         icon: Icon(Icons.more_vert_rounded, color: AppColors.textSecondary),
         onSelected: (action) => action == 'edit'
             ? showEditVitalSheet(context, r)
             : _delete(context),
-        itemBuilder: (_) => const [
-          PopupMenuItem(value: 'edit', child: Text('Edit')),
-          PopupMenuItem(value: 'delete', child: Text('Delete')),
+        itemBuilder: (_) => [
+          PopupMenuItem(value: 'edit', child: Text('Edit'.tr)),
+          PopupMenuItem(value: 'delete', child: Text('Delete'.tr)),
         ],
       ),
     );
@@ -640,60 +648,63 @@ class _VitalFormState extends State<_VitalForm> {
 
   /// For a field that may stay empty when adding (the reading is skipped) but
   /// not when correcting a reading.
-  String? _emptyError(String what) => _editing == null ? null : 'Enter $what';
+  String? _emptyError(String message) => _editing == null ? null : message;
 
   String? _validateWeight(WeightUnit unit) {
-    if (_weightEmpty) return _emptyError('the weight');
+    if (_weightEmpty) return _emptyError('Enter the weight'.tr);
     final typed = _num(_weight.text);
-    if (typed == null) return 'Enter a number';
+    if (typed == null) return 'Enter a number'.tr;
     final kg = unit.toKg(typed);
     if (kg < 1 || kg > 500) {
-      return 'Should be between ${unit.fromKg(1).ceil()} and '
-          '${unit.fromKg(500).floor()} ${unit.label}';
+      return 'Should be between {min} and {max} {unit}'.trArgs({
+        'min': unit.fromKg(1).ceil(),
+        'max': unit.fromKg(500).floor(),
+        'unit': unit.label,
+      });
     }
     return null;
   }
 
   String? _validateHeight(HeightUnit unit) {
-    if (_heightEmpty(unit)) return _emptyError('the height');
+    if (_heightEmpty(unit)) return _emptyError('Enter the height'.tr);
     final cm = _heightCm(unit);
-    if (cm == null) return 'Enter a number';
+    if (cm == null) return 'Enter a number'.tr;
     if (unit == HeightUnit.ftIn) {
       final inches = _blank(_inches) ? 0.0 : _num(_inches.text)!;
-      if (inches >= 12) return 'Inches should be less than 12';
+      if (inches >= 12) return 'Inches should be less than 12'.tr;
     }
     if (cm < 30 || cm > 272) {
       return switch (unit) {
-        HeightUnit.cm => 'Should be between 30 and 272 cm',
-        HeightUnit.m => 'Should be between 0.3 and 2.72 m',
-        HeightUnit.ftIn => 'Should be between 1 ft and 8 ft 11 in',
+        HeightUnit.cm => 'Should be between 30 and 272 cm'.tr,
+        HeightUnit.m => 'Should be between 0.3 and 2.72 m'.tr,
+        HeightUnit.ftIn => 'Should be between 1 ft and 8 ft 11 in'.tr,
       };
     }
     return null;
   }
 
   String? _validateSystolic() {
-    if (_pressureEmpty) return _emptyError('systolic');
+    if (_pressureEmpty) return _emptyError('Enter systolic'.tr);
     final n = _num(_systolic.text);
-    if (n == null) return 'Enter systolic';
-    if (n < 50 || n > 300) return 'Should be 50 to 300';
+    if (n == null) return 'Enter systolic'.tr;
+    if (n < 50 || n > 300) return 'Should be 50 to 300'.tr;
     return null;
   }
 
   String? _validateDiastolic() {
-    if (_pressureEmpty) return _emptyError('diastolic');
+    if (_pressureEmpty) return _emptyError('Enter diastolic'.tr);
     final n = _num(_diastolic.text);
-    if (n == null) return 'Enter diastolic';
-    if (n < 30 || n > 200) return 'Should be 30 to 200';
+    if (n == null) return 'Enter diastolic'.tr;
+    if (n < 30 || n > 200) return 'Should be 30 to 200'.tr;
     final systolic = _num(_systolic.text);
-    if (systolic != null && n >= systolic) return 'Must be below systolic';
+    if (systolic != null && n >= systolic) return 'Must be below systolic'.tr;
     return null;
   }
 
   String? _validatePulse() {
     if (_blank(_pulse)) return null;
     final n = int.tryParse(_pulse.text.trim());
-    if (n == null || n < 20 || n > 250) return 'Should be 20 to 250';
+    if (n == null || n < 20 || n > 250) return 'Should be 20 to 250'.tr;
     return null;
   }
 
@@ -758,7 +769,7 @@ class _VitalFormState extends State<_VitalForm> {
     final cubit = _cubit;
     final inputs = _inputs(cubit.state);
     if (inputs.isEmpty) {
-      setState(() => _error = 'Enter at least one reading.');
+      setState(() => _error = 'Enter at least one reading.'.tr);
       return;
     }
     setState(() {
@@ -781,9 +792,11 @@ class _VitalFormState extends State<_VitalForm> {
           _feet.clear();
           _inches.clear();
         }
-        final names = result.saved.map((t) => t.label.toLowerCase()).join(
-            ' and ');
-        error = 'Saved your $names, but not the rest: $error';
+        final names = result.saved
+            .map((t) => t.label.tr.toLowerCase())
+            .join(' and '.tr);
+        error = 'Saved your {names}, but not the rest: {error}'
+            .trArgs({'names': names, 'error': error});
       }
     }
     if (!mounted) return;
@@ -822,7 +835,12 @@ class _VitalFormState extends State<_VitalForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(adding ? 'Add readings' : 'Edit ${_editing!.type.label.toLowerCase()}',
+              Text(
+                  adding
+                      ? 'Add readings'.tr
+                      : 'Edit {type}'.trArgs({
+                          'type': _editing!.type.label.tr.toLowerCase(),
+                        }),
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -830,12 +848,12 @@ class _VitalFormState extends State<_VitalForm> {
                   )),
               if (adding) ...[
                 const SizedBox(height: 4),
-                Text('Fill in what you measured. Leave the rest empty.',
+                Text('Fill in what you measured. Leave the rest empty.'.tr,
                     style: TextStyle(color: AppColors.textSecondary)),
               ],
               if (_shows(VitalType.weight)) ...[
                 _FieldHeading(
-                  'Weight',
+                  'Weight'.tr,
                   trailing: _UnitToggle<WeightUnit>(
                     units: {for (final u in WeightUnit.values) u: u.label},
                     selected: weightUnit,
@@ -849,13 +867,13 @@ class _VitalFormState extends State<_VitalForm> {
                   inputFormatters: _decimal,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                      labelText: 'Weight', suffixText: weightUnit.label),
+                      labelText: 'Weight'.tr, suffixText: weightUnit.label),
                   validator: (_) => _validateWeight(weightUnit),
                 ),
               ],
               if (_shows(VitalType.height)) ...[
                 _FieldHeading(
-                  'Height',
+                  'Height'.tr,
                   trailing: _UnitToggle<HeightUnit>(
                     units: {for (final u in HeightUnit.values) u: u.label},
                     selected: heightUnit,
@@ -873,8 +891,8 @@ class _VitalFormState extends State<_VitalForm> {
                           keyboardType: TextInputType.number,
                           inputFormatters: _digits,
                           textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                              labelText: 'Feet', suffixText: 'ft'),
+                          decoration: InputDecoration(
+                              labelText: 'Feet'.tr, suffixText: 'ft'),
                           validator: (_) => _validateHeight(heightUnit),
                         ),
                       ),
@@ -885,8 +903,8 @@ class _VitalFormState extends State<_VitalForm> {
                           keyboardType: _decimalKeyboard,
                           inputFormatters: _decimal,
                           textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                              labelText: 'Inches', suffixText: 'in'),
+                          decoration: InputDecoration(
+                              labelText: 'Inches'.tr, suffixText: 'in'),
                         ),
                       ),
                     ],
@@ -899,12 +917,12 @@ class _VitalFormState extends State<_VitalForm> {
                     inputFormatters: _decimal,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
-                        labelText: 'Height', suffixText: heightUnit.label),
+                        labelText: 'Height'.tr, suffixText: heightUnit.label),
                     validator: (_) => _validateHeight(heightUnit),
                   ),
               ],
               if (_shows(VitalType.bloodPressure)) ...[
-                const _FieldHeading('Blood pressure'),
+                _FieldHeading('Blood pressure'.tr),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -916,8 +934,9 @@ class _VitalFormState extends State<_VitalForm> {
                         keyboardType: TextInputType.number,
                         inputFormatters: _digits,
                         textInputAction: TextInputAction.next,
-                        decoration: const InputDecoration(
-                            labelText: 'Systolic (top)', suffixText: 'mmHg'),
+                        decoration: InputDecoration(
+                            labelText: 'Systolic (top)'.tr,
+                            suffixText: 'mmHg'),
                         validator: (_) => _validateSystolic(),
                       ),
                     ),
@@ -928,8 +947,8 @@ class _VitalFormState extends State<_VitalForm> {
                         keyboardType: TextInputType.number,
                         inputFormatters: _digits,
                         textInputAction: TextInputAction.next,
-                        decoration: const InputDecoration(
-                            labelText: 'Diastolic (bottom)',
+                        decoration: InputDecoration(
+                            labelText: 'Diastolic (bottom)'.tr,
                             suffixText: 'mmHg'),
                         validator: (_) => _validateDiastolic(),
                       ),
@@ -941,8 +960,8 @@ class _VitalFormState extends State<_VitalForm> {
                   controller: _pulse,
                   keyboardType: TextInputType.number,
                   inputFormatters: _digits,
-                  decoration: const InputDecoration(
-                      labelText: 'Pulse (optional)', suffixText: 'bpm'),
+                  decoration: InputDecoration(
+                      labelText: 'Pulse (optional)'.tr, suffixText: 'bpm'),
                   validator: (_) => _validatePulse(),
                 ),
               ],
@@ -959,7 +978,7 @@ class _VitalFormState extends State<_VitalForm> {
                 controller: _note,
                 maxLength: 300,
                 decoration:
-                    const InputDecoration(labelText: 'Note (optional)'),
+                    InputDecoration(labelText: 'Note (optional)'.tr),
               ),
               if (_error != null)
                 Padding(
@@ -979,7 +998,7 @@ class _VitalFormState extends State<_VitalForm> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2.5, color: Colors.white),
                       )
-                    : Text(adding ? 'Save' : 'Save changes'),
+                    : Text(adding ? 'Save'.tr : 'Save changes'.tr),
               ),
             ],
           ),

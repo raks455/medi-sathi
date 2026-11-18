@@ -3,19 +3,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../app_tour/app_tour.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../habits/habit_pages.dart';
+import '../../../habits/habits.dart';
 import '../../../medication/domain/entities/medication.dart';
 import '../../../medication/presentation/bloc/medication_bloc.dart';
 import '../../../medication/presentation/utils/medication_format.dart';
 import '../../../notification/data/services/push_notification_service.dart';
 import '../../../notification/presentation/bloc/notifications_bloc.dart';
 import '../../../reminder/presentation/bloc/reminder_bloc.dart';
-import '../../../reminder/presentation/widgets/adherence_card.dart';
+import '../../../medication/presentation/widgets/medicine_details_sheet.dart';
+import '../../../reminder/presentation/bloc/dose_history_bloc.dart';
+import '../../../reminder/presentation/widgets/dose_timing_card.dart';
 import '../../../reminder/presentation/widgets/dose_tile.dart';
 import '../../../wellness/presentation/cubit/wellness_cubits.dart';
 import '../../../wellness/presentation/widgets/mood_check_in_card.dart';
@@ -59,6 +65,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     context.read<ReminderBloc>().add(const TodayRequested());
     context.read<NotificationsBloc>().add(const NotificationsRequested());
     context.read<MedicationBloc>().add(const MedicationsRequested());
+    // The 7-day chart.
+    final history = context.read<DoseHistoryBloc>();
+    history.add(HistoryRequested(history.state.days));
   }
 
   Future<void> _pullToRefresh() {
@@ -85,9 +94,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   static String _greeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return 'Good morning'.tr;
+    if (hour < 17) return 'Good afternoon'.tr;
+    return 'Good evening'.tr;
   }
 
   @override
@@ -113,7 +122,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               buildWhen: (p, c) => p.unreadCount != c.unreadCount,
               builder: (context, state) => IconButton(
                 key: AppTourKeys.notificationsButton,
-                tooltip: 'Notifications',
+                tooltip: 'Notifications'.tr,
                 onPressed: () => context.go(AppRoutes.notifications),
                 icon: Badge(
                   isLabelVisible: state.unreadCount > 0,
@@ -137,24 +146,46 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   final name = state.user?.fullName ?? '';
-                  return Text(
-                    name.isEmpty ? _greeting() : '${_greeting()}, $name',
-                    style: TextStyle(
-                        fontSize: 16, color: AppColors.textPrimary),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isEmpty
+                            ? _greeting()
+                            : '{greeting}, {name}'.trArgs(
+                                {'greeting': _greeting(), 'name': name}),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        DateFormat.yMMMMEEEEd().format(DateTime.now()),
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
                   );
                 },
               ),
-              const SizedBox(height: 14),
-              const MoodCheckInCard(),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+              // Taken on time, late, missed: today and the last 7 days.
               BlocBuilder<ReminderBloc, ReminderState>(
-                buildWhen: (p, c) => p.today?.summary != c.today?.summary,
+                buildWhen: (p, c) => p.today != c.today,
                 builder: (context, state) => state.today == null
                     ? const SizedBox.shrink()
                     : Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: AdherenceCard(
-                            title: 'Today', summary: state.today!.summary),
+                        child: BlocBuilder<DoseHistoryBloc, DoseHistoryState>(
+                          buildWhen: (p, c) => p.schedule != c.schedule,
+                          builder: (context, history) => DoseTimingCard(
+                            today: state.today!.doses,
+                            recent: history.schedule?.doses ?? const [],
+                            onOpen: (dose) => showMedicineDetails(
+                                context, dose.medicationId),
+                          ),
+                        ),
                       ),
               ),
               BlocBuilder<MedicationBloc, MedicationState>(
@@ -163,14 +194,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     _MedicineOverview(medications: state.medications),
               ),
               const SizedBox(height: 20),
-              Text(
-                "Today's doses",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
+              _Heading("Today's doses".tr),
               const SizedBox(height: 12),
               BlocBuilder<ReminderBloc, ReminderState>(
                 builder: (context, state) => Column(
@@ -178,6 +202,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   children: _buildDoses(context, state),
                 ),
               ),
+              const SizedBox(height: 20),
+              _Heading('Healthy habits'.tr),
+              const SizedBox(height: 12),
+              const _HabitTiles(),
+              const SizedBox(height: 12),
+              const MoodCheckInCard(),
             ],
           ),
         ),
@@ -192,8 +222,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         return [
           _Notice(
             icon: Icons.cloud_off_rounded,
-            text: state.message ?? "Could not load today's doses.",
-            actionLabel: 'Try again',
+            text: state.message ?? "Could not load today's doses.".tr,
+            actionLabel: 'Try again'.tr,
             onAction: _refresh,
           ),
         ];
@@ -210,8 +240,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _Notice(
           icon: Icons.event_available_outlined,
           text: 'No doses scheduled for today.\n'
-              'Add a medicine with a schedule to get reminders.',
-          actionLabel: 'My medicines',
+                  'Add a medicine with a schedule to get reminders.'
+              .tr,
+          actionLabel: 'My medicines'.tr,
           onAction: () => context.go(AppRoutes.medications),
         ),
       ];
@@ -224,11 +255,69 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             key: ValueKey(d.doseKey),
             dose: d,
             isSaving: state.marking.contains(d.doseKey),
+            onOpen: () => showMedicineDetails(context, d.medicationId),
             onMark: (status) =>
                 context.read<ReminderBloc>().add(DoseMarked(d, status)),
           ),
         ),
     ];
+  }
+}
+
+class _Heading extends StatelessWidget {
+  final String text;
+  const _Heading(this.text);
+
+  @override
+  Widget build(BuildContext context) => Text(
+        text,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+        ),
+      );
+}
+
+/// Water drunk today and the fast in progress; each opens its tracker.
+class _HabitTiles extends StatelessWidget {
+  const _HabitTiles();
+
+  @override
+  Widget build(BuildContext context) {
+    final water = context.watch<WaterCubit>().state;
+    final fasting = context.watch<FastingCubit>().state;
+    final now = DateTime.now();
+    return Row(
+      children: [
+        Expanded(
+          child: _StatTile(
+            icon: Icons.local_drink_rounded,
+            value: formatWater(water.todayMl),
+            label: water.goalReached
+                ? 'Water · goal reached'.tr
+                : 'Water · of {goal}'
+                    .trArgs({'goal': formatWater(water.goalMl)}),
+            onTap: () => context.push(AppRoutes.water),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _StatTile(
+            icon: Icons.hourglass_bottom_rounded,
+            value: fasting.isFasting
+                ? formatHours(fasting.elapsed(now))
+                : '—',
+            label: fasting.isFasting
+                ? (fasting.reachedGoal(now)
+                    ? 'Fasting · goal reached'.tr
+                    : 'Fasting · of {h} h'.trArgs({'h': fasting.goalHours}))
+                : 'Fasting · not started'.tr,
+            onTap: () => context.push(AppRoutes.fasting),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -253,8 +342,10 @@ class _MedicineOverview extends StatelessWidget {
               child: _StatTile(
                 icon: Icons.medication_outlined,
                 value: '${active.length}',
-                label: active.length == 1 ? 'Medicine' : 'Medicines',
-                caption: stopped > 0 ? '$stopped stopped' : null,
+                label: active.length == 1 ? 'Medicine'.tr : 'Medicines'.tr,
+                caption: stopped > 0
+                    ? '{n} stopped'.trArgs({'n': stopped})
+                    : null,
                 onTap: () => context.go(AppRoutes.medications),
               ),
             ),
@@ -263,7 +354,7 @@ class _MedicineOverview extends StatelessWidget {
               child: _StatTile(
                 icon: Icons.inventory_2_outlined,
                 value: '${lowStock.length}',
-                label: 'To refill soon',
+                label: 'To refill soon'.tr,
                 highlight: lowStock.isNotEmpty,
                 onTap: () => context.go(AppRoutes.medications),
               ),
@@ -282,9 +373,9 @@ class _MedicineOverview extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Refill soon',
-                  style: TextStyle(
+                Text(
+                  'Refill soon'.tr,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     color: AppColors.error,
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../bloc/splash_bloc.dart';
@@ -80,7 +81,7 @@ class _SplashPageState extends State<SplashPage>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Your friend in taking medicine',
+                              'Your friend in taking medicine'.tr,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white.withValues(alpha: 0.9),

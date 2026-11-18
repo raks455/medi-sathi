@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class OrDivider extends StatelessWidget {
@@ -12,7 +13,7 @@ class OrDivider extends StatelessWidget {
         Expanded(child: Divider(color: AppColors.tertiary, thickness: 1.5)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('or', style: TextStyle(color: AppColors.textSecondary)),
+          child: Text('or'.tr, style: TextStyle(color: AppColors.textSecondary)),
         ),
         Expanded(child: Divider(color: AppColors.tertiary, thickness: 1.5)),
       ],

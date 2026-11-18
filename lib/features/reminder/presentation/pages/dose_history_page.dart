@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/dose.dart';
 import '../bloc/dose_history_bloc.dart';
@@ -13,7 +14,8 @@ class DoseHistoryPage extends StatelessWidget {
   const DoseHistoryPage({super.key});
 
   static const _ranges = [7, 30]; // the API allows at most 31 days
-  static final _dayFormat = DateFormat('EEEE, d MMM');
+  // Made when used, so it follows a change of language.
+  static DateFormat get _dayFormat => DateFormat('EEEE, d MMM');
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +23,8 @@ class DoseHistoryPage extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('History',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            title: Text('History'.tr,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
           body: Column(
             children: [
@@ -34,7 +36,7 @@ class DoseHistoryPage extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: ChoiceChip(
-                          label: Text('Last $days days'),
+                          label: Text('Last {n} days'.trArgs({'n': days})),
                           selected: state.days == days,
                           showCheckmark: false,
                           onSelected: (_) => context
@@ -72,7 +74,7 @@ class DoseHistoryPage extends StatelessWidget {
                     size: 44, color: AppColors.primary),
                 const SizedBox(height: 12),
                 Text(
-                  state.message ?? 'Could not load your history.',
+                  state.message ?? 'Could not load your history.'.tr,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.textSecondary),
                 ),
@@ -80,7 +82,7 @@ class DoseHistoryPage extends StatelessWidget {
                   onPressed: () => context
                       .read<DoseHistoryBloc>()
                       .add(HistoryRequested(state.days)),
-                  child: const Text('Try again'),
+                  child: Text('Try again'.tr),
                 ),
               ],
             ),
@@ -99,14 +101,14 @@ class DoseHistoryPage extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           children: [
             AdherenceCard(
-              title: 'Last ${state.days} days',
+              title: 'Last {n} days'.trArgs({'n': state.days}),
               summary: schedule.summary,
             ),
             if (days.isEmpty)
               Padding(
                 padding: EdgeInsets.only(top: 40),
                 child: Text(
-                  'No scheduled doses in this period.',
+                  'No scheduled doses in this period.'.tr,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.textSecondary),
                 ),

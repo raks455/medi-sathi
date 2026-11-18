@@ -132,6 +132,10 @@ class Medication extends Equatable {
   final bool isStopped;
   final DateTime? stoppedAt;
 
+  /// The user's photo of the medicine. A link that opens without signing in
+  /// and changes whenever the photo does. Null when there is no photo.
+  final String? photoUrl;
+
   const Medication({
     required this.id,
     required this.name,
@@ -143,6 +147,7 @@ class Medication extends Equatable {
     this.inventory,
     this.isStopped = false,
     this.stoppedAt,
+    this.photoUrl,
   });
 
   /// The editable fields, e.g. to save this medicine with one thing changed.
@@ -168,6 +173,7 @@ class Medication extends Equatable {
         inventory,
         isStopped,
         stoppedAt,
+        photoUrl,
       ];
 }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -12,10 +14,10 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(automaticallyImplyLeading: false,
-        title: const Text('Settings',    style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('Settings'.tr,    style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
-      body: const Center(
-        child: Text('Settings'),
+      body: Center(
+        child: Text('Settings'.tr),
       ),
     );
   }

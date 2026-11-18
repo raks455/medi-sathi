@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/user.dart';
 import '../../../notification/data/services/push_notification_service.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -51,7 +52,7 @@ class AuthRepositoryImpl implements AuthRepository {
           // Endpoint missing on the backend (see ApiConstants.googleLogin).
           if (e.statusCode == 404 || e.statusCode == 405) {
             throw ServerException(
-                'Google sign-in is not enabled on the server yet.',
+                'Google sign-in is not enabled on the server yet.'.tr,
                 statusCode: e.statusCode);
           }
           rethrow;
@@ -71,7 +72,7 @@ class AuthRepositoryImpl implements AuthRepository {
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
     } catch (_) {
-      return const Left(ServerFailure('Unexpected response from the server.'));
+      return Left(ServerFailure('Unexpected response from the server.'.tr));
     }
   }
 
@@ -93,7 +94,7 @@ class AuthRepositoryImpl implements AuthRepository {
       } catch (_) {}
       return Right(unit);
     } catch (_) {
-      return const Left(CacheFailure('Could not sign out.'));
+      return Left(CacheFailure('Could not sign out.'.tr));
     }
   }
 
@@ -103,7 +104,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final token = await tokenStorage.readAccessToken();
       return Right(token != null && token.isNotEmpty);
     } catch (_) {
-      return const Left(CacheFailure('Could not read login status'));
+      return Left(CacheFailure('Could not read login status'.tr));
     }
   }
 
@@ -113,7 +114,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final session = await tokenStorage.readSession();
       return Right(session?.toUser());
     } catch (_) {
-      return const Left(CacheFailure('Could not read user'));
+      return Left(CacheFailure('Could not read user'.tr));
     }
   }
 }

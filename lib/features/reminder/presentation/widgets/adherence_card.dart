@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/dose.dart';
 
@@ -40,7 +41,7 @@ class AdherenceCard extends StatelessWidget {
               ),
               if (percent != null)
                 Text(
-                  '${percent.round()}% adherence',
+                  '{n}% adherence'.trArgs({'n': percent.round()}),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w600,
@@ -51,8 +52,9 @@ class AdherenceCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             s.total == 0
-                ? 'No doses scheduled'
-                : '${s.taken} of ${s.total} doses taken',
+                ? 'No doses scheduled'.tr
+                : '{taken} of {total} doses taken'
+                    .trArgs({'taken': s.taken, 'total': s.total}),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -72,10 +74,10 @@ class AdherenceCard extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              _Stat(label: 'Missed', value: s.missed),
-              _Stat(label: 'Skipped', value: s.skipped),
+              _Stat(label: 'Missed'.tr, value: s.missed),
+              _Stat(label: 'Skipped'.tr, value: s.skipped),
               // "Due" doses are still waiting for an answer, like upcoming ones.
-              _Stat(label: 'Remaining', value: s.due + s.upcoming),
+              _Stat(label: 'Remaining'.tr, value: s.due + s.upcoming),
             ],
           ),
         ],

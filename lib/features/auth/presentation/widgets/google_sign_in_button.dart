@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medisathi/core/constants/app_assets.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// "Continue with Google" button.
@@ -26,7 +27,7 @@ class GoogleSignInButton extends StatelessWidget {
      width: 20,
       fit: BoxFit.scaleDown,
       filterQuality: FilterQuality.high,
-      semanticLabel: 'MediSathi logo',
+      semanticLabel: 'MediSathi logo'.tr,
     );
     return OutlinedButton(
       onPressed: isLoading ? null : onPressed,
@@ -50,7 +51,7 @@ class GoogleSignInButton extends StatelessWidget {
               children: [
                image,
                 const SizedBox(width: 12),
-                Text(label),
+                Text(label.tr),
               ],
             ),
     );

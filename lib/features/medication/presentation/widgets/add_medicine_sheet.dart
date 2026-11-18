@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -32,7 +33,7 @@ Future<void> showAddMedicineSheet(BuildContext context) {
               Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 12),
                 child: Text(
-                  'Add medicine',
+                  'Add medicine'.tr,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -42,15 +43,15 @@ Future<void> showAddMedicineSheet(BuildContext context) {
               ),
               _Option(
                 icon: Icons.edit_note_rounded,
-                title: 'Enter manually',
-                subtitle: 'Type the name, dose and schedule',
+                title: 'Enter manually'.tr,
+                subtitle: 'Type the name, dose and schedule'.tr,
                 onTap: () => open(AppRoutes.addManual),
               ),
               const SizedBox(height: 10),
               _Option(
                 icon: Icons.document_scanner_outlined,
-                title: 'Scan prescription or label',
-                subtitle: 'Take a photo and review what was read',
+                title: 'Scan prescription or label'.tr,
+                subtitle: 'Take a photo and review what was read'.tr,
                 onTap: () => open(AppRoutes.scanPrescription),
               ),
             ],
