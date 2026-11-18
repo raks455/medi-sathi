@@ -35,13 +35,17 @@ class AuthSessionModel {
         'full_name': fullName,
       };
 
-  AuthSessionModel copyWith({String? accessToken, String? refreshToken}) {
+  AuthSessionModel copyWith({
+    String? accessToken,
+    String? refreshToken,
+    String? fullName,
+  }) {
     return AuthSessionModel(
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
       userId: userId,
       email: email,
-      fullName: fullName,
+      fullName: fullName ?? this.fullName,
     );
   }
 

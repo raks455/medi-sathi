@@ -18,12 +18,13 @@ class PrescriptionScanRepositoryImpl implements PrescriptionScanRepository {
   });
 
   @override
-  Future<Either<Failure, List<ScannedMedicine>?>> scan(
+  Future<Either<Failure, PrescriptionScan?>> scan(
       ScanSource source) async {
     try {
       final path = await scanner.pickImage(source);
       if (path == null) return const Right(null);
-      return Right(parser.parse(await scanner.readLines(path)));
+      final medicines = parser.parse(await scanner.readLines(path));
+      return Right(PrescriptionScan(medicines: medicines, imagePath: path));
     } on PlatformException catch (e) {
       debugPrint('Scan failed: ${e.code} ${e.message}');
       final denied = e.code.contains('denied');

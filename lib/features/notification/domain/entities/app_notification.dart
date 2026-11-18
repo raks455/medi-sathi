@@ -5,6 +5,7 @@ class AppNotification extends Equatable {
   /// API values for [type].
   static const typeDoseReminder = 'medication_reminder';
   static const typeRefillReminder = 'refill_reminder';
+  static const typePeriodReminder = 'period_reminder';
 
   final String id;
   final String type;

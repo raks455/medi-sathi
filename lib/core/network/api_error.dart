@@ -29,6 +29,12 @@ String? _extractMessage(dynamic data) {
   if (data is! Map || data['detail'] == null) return null;
   final detail = data['detail'];
 
+  // FastAPI's answer for a path the server does not have: the app is newer
+  // than the deployed backend.
+  if (detail == 'Not Found' || detail == 'Method Not Allowed') {
+    return 'This feature is not available on the server yet. '
+        'Please try again later.';
+  }
   if (detail is String) return detail;
 
   if (detail is List && detail.isNotEmpty && detail.first is Map) {

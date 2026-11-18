@@ -65,7 +65,7 @@ class _Illustration extends StatelessWidget {
           Container(
             width: 270,
             height: 270,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.tertiaryLight,
             ),
@@ -73,7 +73,7 @@ class _Illustration extends StatelessWidget {
           Container(
             width: 200,
             height: 200,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.tertiary,
             ),
@@ -83,7 +83,7 @@ class _Illustration extends StatelessWidget {
             height: 124,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [AppColors.secondary, AppColors.primary],
@@ -124,7 +124,7 @@ class _FloatingChip extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(

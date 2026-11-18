@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/info_widgets.dart';
+import '../../../health_records/domain/health_record.dart';
+import '../../../health_records/domain/health_records_repository.dart';
+import '../../../health_records/presentation/widgets/record_sheets.dart';
 import '../../domain/entities/scanned_medicine.dart';
 import '../bloc/prescription_scan_bloc.dart';
 import '../utils/medication_format.dart';
@@ -10,7 +17,9 @@ import 'medication_form_page.dart';
 /// Scan a prescription or medicine label, then review each medicine found
 /// in the normal add-medicine form before it is saved.
 class ScanMedicinePage extends StatefulWidget {
-  const ScanMedicinePage({super.key});
+  /// Used to keep the scanned photo in Health Records > Prescriptions.
+  final HealthRecordsRepository? records;
+  const ScanMedicinePage({super.key, this.records});
 
   @override
   State<ScanMedicinePage> createState() => _ScanMedicinePageState();
@@ -19,6 +28,10 @@ class ScanMedicinePage extends StatefulWidget {
 class _ScanMedicinePageState extends State<ScanMedicinePage> {
   /// Scanned medicines the user has already saved.
   final _added = <ScannedMedicine>{};
+
+  /// Photo paths already saved to Health Records.
+  final _savedPhotos = <String>{};
+  bool _savingPhoto = false;
 
   void _scan(ScanSource source) {
     setState(_added.clear);
@@ -34,6 +47,64 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
     if (saved == true && mounted) setState(() => _added.add(medicine));
   }
 
+  Future<void> _savePhoto(String path) async {
+    final repo = widget.records;
+    if (repo == null) return;
+    final details = await showRecordDetailsSheet(
+      context,
+      folder: RecordFolder.prescriptions,
+      suggestedTitle:
+          'Prescription ${DateFormat.yMMMd().format(DateTime.now())}',
+    );
+    if (details == null || !mounted) return;
+    setState(() => _savingPhoto = true);
+    final name = path.split(RegExp(r'[\\/]')).last;
+    final result = await repo.upload(
+      file: LocalFile(path: path, name: name),
+      folder: RecordFolder.prescriptions,
+      category: RecordCategory.prescription,
+      title: details.title,
+      notes: details.notes,
+      documentDate: details.documentDate,
+    );
+    if (!mounted) return;
+    setState(() => _savingPhoto = false);
+    result.fold(
+      (f) => showInfoSnack(context, f.message, error: true),
+      (_) => setState(() => _savedPhotos.add(path)),
+    );
+  }
+
+  /// Offer to keep the scanned prescription photo in Health Records.
+  Widget _savePhotoCard(String? path) {
+    if (path == null || widget.records == null) return const SizedBox.shrink();
+    final saved = _savedPhotos.contains(path);
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: InfoCard(children: [
+        InfoTile(
+          icon: saved ? Icons.check_circle_rounded : Icons.folder_shared_outlined,
+          color: saved ? AppColors.success : null,
+          title: saved ? 'Saved to Health Records' : 'Save to Health Records',
+          subtitle: saved
+              ? 'Find it under Profile > Health Records'
+              : 'Keep this prescription photo in your Prescriptions folder',
+          trailing: _savingPhoto
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2.5))
+              : null,
+          onTap: _savingPhoto
+              ? null
+              : saved
+                  ? () => context.push(AppRoutes.healthRecords)
+                  : () => _savePhoto(path),
+        ),
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +117,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
           builder: (context, state) {
             switch (state.status) {
               case ScanStatus.scanning:
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -62,6 +133,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
                 return _buildStart(
                   notice: 'No medicines were found in that picture. '
                       'Try a sharper, well-lit photo, or add it manually.',
+                  photoPath: state.imagePath,
                 );
               case ScanStatus.failure:
                 return _buildStart(notice: state.message, isError: true);
@@ -74,7 +146,8 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
     );
   }
 
-  Widget _buildStart({String? notice, bool isError = false}) {
+  Widget _buildStart(
+      {String? notice, bool isError = false, String? photoPath}) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       children: [
@@ -82,16 +155,16 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
           child: Container(
             width: 104,
             height: 104,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.tertiaryLight,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.document_scanner_outlined,
+            child: Icon(Icons.document_scanner_outlined,
                 size: 48, color: AppColors.primary),
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Scan a prescription or label',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -101,7 +174,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Take a clear photo of printed text. MediSathi reads the medicine '
           'names and doses on your phone, and you check each one before it '
           'is saved.',
@@ -128,6 +201,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
               ),
             ),
           ),
+          _savePhotoCard(photoPath),
         ],
         const SizedBox(height: 28),
         ElevatedButton.icon(
@@ -142,7 +216,7 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
           label: const Text('Choose from gallery'),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Works best with printed text. Handwriting is often misread.',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
@@ -160,18 +234,19 @@ class _ScanMedicinePageState extends State<ScanMedicinePage> {
           medicines.length == 1
               ? 'Found 1 medicine'
               : 'Found ${medicines.length} medicines',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           'Scans can be wrong. Open each one, compare it with your '
           'prescription, then save it.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
+        _savePhotoCard(state.imagePath),
         const SizedBox(height: 16),
         for (final m in medicines)
           Padding(
@@ -256,7 +331,7 @@ class _ScannedCard extends StatelessWidget {
                   children: [
                     Text(
                       m.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -266,7 +341,7 @@ class _ScannedCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(details.join(' · '),
                           style:
-                              const TextStyle(color: AppColors.textSecondary)),
+                              TextStyle(color: AppColors.textSecondary)),
                     ],
                   ],
                 ),
@@ -284,7 +359,7 @@ class _ScannedCard extends StatelessWidget {
             ),
             child: Text(
               m.sourceText,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 12, color: AppColors.textSecondary),
             ),
           ),

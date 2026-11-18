@@ -180,7 +180,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
     final instructions = _instructions.text.trim();
     final input = MedicationInput(
       name: _name.text.trim(),
-      medicineType: _type!,
+      medicineType: _type !,
       dose: _dose.text.trim(),
       intakeTiming: _timing!,
       instructions: instructions.isEmpty ? null : instructions,
@@ -400,11 +400,11 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
               _hasSchedule
                   ? 'Set the times you take this medicine'
                   : 'Off: taken only when needed',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           if (_hasSchedule) ...[
-            const Divider(height: 1, color: AppColors.tertiary),
+            Divider(height: 1, color: AppColors.tertiary),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
               child: Column(
@@ -423,7 +423,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                         ),
                       if (_times.length < _maxTimes)
                         ActionChip(
-                          avatar: const Icon(Icons.add_rounded,
+                          avatar: Icon(Icons.add_rounded,
                               size: 18, color: AppColors.primary),
                           label: const Text('Add time'),
                           onPressed: _addTime,
@@ -529,7 +529,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                           ? 'Rings with your alarm sound at alarm volume and '
                               'vibrates strongly.'
                           : 'A normal notification with its usual sound.',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
@@ -572,11 +572,11 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
               _trackStock
                   ? 'Each dose you mark as taken is deducted'
                   : 'Off: no stock count or refill reminders',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           if (_trackStock) ...[
-            const Divider(height: 1, color: AppColors.tertiary),
+            Divider(height: 1, color: AppColors.tertiary),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: Row(
@@ -610,7 +610,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                 ],
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(16, 6, 16, 4),
               child: Text(
                 'Count in your own unit: tablets, ml, puffs...',
@@ -641,7 +641,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                                     ? '1 day before it runs out'
                                     : '$_remindDaysBefore days before it '
                                         'runs out',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.textPrimary),
                           ),
                         ),
@@ -675,7 +675,7 @@ class _MedicationFormPageState extends State<MedicationFormPage> {
                             // The run-out date is worked out from the schedule.
                             : 'Refill reminders need a schedule. Without one '
                                 'the stock is only counted.',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12, color: AppColors.textSecondary),
                       ),
                     ),
@@ -706,7 +706,7 @@ class _ScanNotice extends StatelessWidget {
         color: AppColors.tertiaryLight,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.fact_check_outlined, color: AppColors.primary),
           SizedBox(width: 10),
@@ -733,7 +733,7 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8, bottom: 10),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
@@ -753,7 +753,7 @@ class _FieldLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w600,
           color: AppColors.textSecondary,
@@ -826,7 +826,7 @@ class _DateField extends StatelessWidget {
               IconButton(
                 tooltip: 'Clear $label date',
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.close_rounded,
+                icon: Icon(Icons.close_rounded,
                     size: 18, color: AppColors.textSecondary),
                 onPressed: onClear,
               ),

@@ -187,7 +187,9 @@ class PushNotificationServiceImpl implements PushNotificationService {
     final tag = data['dose_key'] as String? ??
         (data['type'] == 'refill_reminder'
             ? 'refill:${data['medication_id']}'
-            : null);
+            : data['type'] == 'period_reminder'
+                ? 'cycle'
+                : null);
     final alarm = data['alert_style'] == 'alarm';
     try {
       await localNotifications.show(

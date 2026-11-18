@@ -5,23 +5,27 @@ import 'app_colors.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get light {
+  static ThemeData get light => build(AppPalette.light);
+  static ThemeData get dark => build(AppPalette.dark);
+
+  static ThemeData build(AppPalette p) {
     final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.light,
+      seedColor: p.primary,
+      brightness: p.brightness,
     ).copyWith(
-      primary: AppColors.primary,
+      primary: p.primary,
       secondary: AppColors.secondary,
-      tertiary: AppColors.tertiary,
-      surface: AppColors.surface,
-      onSurface: AppColors.textPrimary,
+      tertiary: p.tertiary,
+      surface: p.surface,
+      onSurface: p.textPrimary,
       error: AppColors.error,
     );
 
     final base = ThemeData(
       useMaterial3: true,
+      brightness: p.brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: AppColors.scaffold,
+      scaffoldBackgroundColor: p.scaffold,
     );
 
     final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(16));
@@ -34,32 +38,32 @@ class AppTheme {
 
     return base.copyWith(
       textTheme: base.textTheme.apply(
-        bodyColor: AppColors.textPrimary,
-        displayColor: AppColors.textPrimary,
+        bodyColor: p.textPrimary,
+        displayColor: p.textPrimary,
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.scaffold,
-        foregroundColor: AppColors.textPrimary,
+      appBarTheme: AppBarTheme(
+        backgroundColor: p.scaffold,
+        foregroundColor: p.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: p.surface,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        labelStyle: TextStyle(color: p.textSecondary),
         prefixIconColor: AppColors.icon,
-        suffixIconColor: AppColors.textSecondary,
-        border: border(AppColors.tertiary),
-        enabledBorder: border(AppColors.tertiary),
-        focusedBorder: border(AppColors.primary, 1.8),
+        suffixIconColor: p.textSecondary,
+        border: border(p.tertiary),
+        enabledBorder: border(p.tertiary),
+        focusedBorder: border(p.primary, 1.8),
         errorBorder: border(AppColors.error),
         focusedErrorBorder: border(AppColors.error, 1.8),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: p.primary,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.secondary,
           disabledForegroundColor: Colors.white,
@@ -71,24 +75,24 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: p.primary,
           minimumSize: const Size.fromHeight(54),
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          side: BorderSide(color: p.primary, width: 1.5),
           shape: shape,
           textStyle: buttonText,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: p.surface,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: AppColors.tertiary,
+        indicatorColor: p.tertiary,
         elevation: 3,
         shadowColor: Colors.black,
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
             color: states.contains(WidgetState.selected)
-                ? AppColors.primary
-                : AppColors.textSecondary,
+                ? p.primary
+                : p.textSecondary,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -97,22 +101,36 @@ class AppTheme {
             return TextStyle(
               fontSize: 12,
               fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected ? AppColors.primary : AppColors.textSecondary,
+              color: selected ? p.primary : p.textSecondary,
             );
           },
         ),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: p.primary,
         foregroundColor: Colors.white,
         elevation: 2,
       ),
+      dialogTheme: DialogTheme(backgroundColor: p.surface),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: p.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: p.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      dividerTheme: DividerThemeData(color: p.tertiary),
+      cardTheme: CardTheme(
+        color: p.surface,
+        surfaceTintColor: Colors.transparent,
+      ),
       chipTheme: base.chipTheme.copyWith(
-        backgroundColor: AppColors.surface,
-        selectedColor: AppColors.primary,
+        backgroundColor: p.surface,
+        selectedColor: p.primary,
         checkmarkColor: Colors.white,
-        deleteIconColor: AppColors.textSecondary,
-        side: const BorderSide(color: AppColors.tertiary, width: 1.2),
+        deleteIconColor: p.textSecondary,
+        side: BorderSide(color: p.tertiary, width: 1.2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         // Chips only resolve the style's *color* per state, so the state
         // logic has to live in the color (not in a WidgetStateTextStyle).
@@ -121,13 +139,13 @@ class AppTheme {
           color: WidgetStateColor.resolveWith(
             (states) => states.contains(WidgetState.selected)
                 ? Colors.white
-                : AppColors.textPrimary,
+                : p.textPrimary,
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: p.primary,
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),

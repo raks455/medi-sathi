@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../app_tour/app_tour.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../medication/domain/entities/medication.dart';
 import '../../../medication/presentation/bloc/medication_bloc.dart';
@@ -16,6 +17,8 @@ import '../../../notification/presentation/bloc/notifications_bloc.dart';
 import '../../../reminder/presentation/bloc/reminder_bloc.dart';
 import '../../../reminder/presentation/widgets/adherence_card.dart';
 import '../../../reminder/presentation/widgets/dose_tile.dart';
+import '../../../wellness/presentation/cubit/wellness_cubits.dart';
+import '../../../wellness/presentation/widgets/mood_check_in_card.dart';
 
 /// Dashboard tab: greeting, today's summary, medicine and stock overview,
 /// and today's doses (mark taken / skipped).
@@ -61,6 +64,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> _pullToRefresh() {
     final bloc = context.read<ReminderBloc>();
     _refresh();
+    context.read<MoodCubit>().load();
     return bloc.stream.firstWhere((s) => s.status != ReminderStatus.loading);
   }
 
@@ -94,7 +98,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       listener: _onDoseSaved,
       child: Scaffold(
         appBar: AppBar(
-          title: const Row(
+          title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               AppLogo(size: 34, shadow: false),
@@ -108,6 +112,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             BlocBuilder<NotificationsBloc, NotificationsState>(
               buildWhen: (p, c) => p.unreadCount != c.unreadCount,
               builder: (context, state) => IconButton(
+                key: AppTourKeys.notificationsButton,
                 tooltip: 'Notifications',
                 onPressed: () => context.go(AppRoutes.notifications),
                 icon: Badge(
@@ -134,12 +139,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   final name = state.user?.fullName ?? '';
                   return Text(
                     name.isEmpty ? _greeting() : '${_greeting()}, $name',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 16, color: AppColors.textPrimary),
                   );
                 },
               ),
               const SizedBox(height: 14),
+              const MoodCheckInCard(),
+              const SizedBox(height: 12),
               BlocBuilder<ReminderBloc, ReminderState>(
                 buildWhen: (p, c) => p.today?.summary != c.today?.summary,
                 builder: (context, state) => state.today == null
@@ -156,7 +163,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     _MedicineOverview(medications: state.medications),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 "Today's doses",
                 style: TextStyle(
                   fontSize: 18,
@@ -293,7 +300,7 @@ class _MedicineOverview extends StatelessWidget {
                             m.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
@@ -303,7 +310,7 @@ class _MedicineOverview extends StatelessWidget {
                         Text(
                           MedicationFormat.stockSummary(m.inventory!),
                           style:
-                              const TextStyle(color: AppColors.textSecondary),
+                              TextStyle(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -343,7 +350,7 @@ class _StatTile extends StatelessWidget {
       color: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.tertiary, width: 1.2),
+        side: BorderSide(color: AppColors.tertiary, width: 1.2),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -377,7 +384,7 @@ class _StatTile extends StatelessWidget {
                     Text(
                       caption == null ? label : '$label · $caption',
                       maxLines: 2,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
@@ -420,7 +427,7 @@ class _Notice extends StatelessWidget {
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           TextButton(onPressed: onAction, child: Text(actionLabel)),
         ],

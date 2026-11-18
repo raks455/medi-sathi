@@ -68,13 +68,13 @@ class DoseHistoryPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.cloud_off_rounded,
+                Icon(Icons.cloud_off_rounded,
                     size: 44, color: AppColors.primary),
                 const SizedBox(height: 12),
                 Text(
                   state.message ?? 'Could not load your history.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
                 TextButton(
                   onPressed: () => context
@@ -103,7 +103,7 @@ class DoseHistoryPage extends StatelessWidget {
               summary: schedule.summary,
             ),
             if (days.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 40),
                 child: Text(
                   'No scheduled doses in this period.',
@@ -116,7 +116,7 @@ class DoseHistoryPage extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 20, bottom: 10),
                 child: Text(
                   _dayLabel(day),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,

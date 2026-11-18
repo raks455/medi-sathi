@@ -21,14 +21,18 @@ class PrescriptionScanState extends Equatable {
   final List<ScannedMedicine> medicines;
   final String? message;
 
+  /// The scanned photo on the phone (after a successful scan).
+  final String? imagePath;
+
   const PrescriptionScanState({
     this.status = ScanStatus.idle,
     this.medicines = const [],
     this.message,
+    this.imagePath,
   });
 
   @override
-  List<Object?> get props => [status, medicines, message];
+  List<Object?> get props => [status, medicines, message, imagePath];
 }
 
 class PrescriptionScanBloc extends Bloc<ScanRequested, PrescriptionScanState> {
@@ -51,7 +55,11 @@ class PrescriptionScanBloc extends Bloc<ScanRequested, PrescriptionScanState> {
       // Cancelled: go back to whatever was on screen.
       (found) => found == null
           ? before
-          : PrescriptionScanState(status: ScanStatus.done, medicines: found),
+          : PrescriptionScanState(
+              status: ScanStatus.done,
+              medicines: found.medicines,
+              imagePath: found.imagePath,
+            ),
     ));
   }
 }

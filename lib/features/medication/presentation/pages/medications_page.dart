@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/medication.dart';
+import '../../../reminder/presentation/bloc/reminder_bloc.dart';
 import '../bloc/medication_bloc.dart';
 import '../utils/medication_format.dart';
 import '../widgets/add_medicine_sheet.dart';
@@ -157,7 +158,7 @@ class MedicationsPage extends StatelessWidget {
               // Shown while a change from this page (stop, delete, add
               // stock ...) is being saved.
               child: state.isBusy
-                  ? const LinearProgressIndicator(
+                  ? LinearProgressIndicator(
                       minHeight: 3,
                       backgroundColor: AppColors.tertiary,
                     )
@@ -210,13 +211,19 @@ class MedicationsPage extends StatelessWidget {
 
     Widget card(Medication m) => Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: MedicationCard(
-            key: ValueKey(m.id),
-            medication: m,
-            onEdit: () => context.go(AppRoutes.editMedication(m.id)),
-            onDelete: () => _confirmDelete(context, m),
-            onToggleStopped: () => _toggleStopped(context, m),
-            onRefill: () => _addStock(context, m),
+          child: BlocBuilder<ReminderBloc, ReminderState>(
+            buildWhen: (p, c) => p.today != c.today,
+            builder: (context, reminders) => MedicationCard(
+              key: ValueKey(m.id),
+              medication: m,
+              todayDoses: reminders.today?.doses
+                  .where((d) => d.medicationId == m.id)
+                  .toList(),
+              onEdit: () => context.go(AppRoutes.editMedication(m.id)),
+              onDelete: () => _confirmDelete(context, m),
+              onToggleStopped: () => _toggleStopped(context, m),
+              onRefill: () => _addStock(context, m),
+            ),
           ),
         );
 
@@ -234,7 +241,7 @@ class MedicationsPage extends StatelessWidget {
               padding: EdgeInsets.only(top: active.isEmpty ? 0 : 8, bottom: 12),
               child: Text(
                 'Stopped (${stopped.length})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textSecondary,
@@ -288,7 +295,7 @@ class _AddStockDialogState extends State<_AddStockDialog> {
             Text(
               '${m.name}: ${MedicationFormat.amount(m.inventory!.quantity)} '
               'in stock now.',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -351,7 +358,7 @@ class _Message extends StatelessWidget {
             Container(
               width: 96,
               height: 96,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.tertiaryLight,
                 shape: BoxShape.circle,
               ),
@@ -361,7 +368,7 @@ class _Message extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -371,7 +378,7 @@ class _Message extends StatelessWidget {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 20),
             TextButton(onPressed: onAction, child: Text(actionLabel)),

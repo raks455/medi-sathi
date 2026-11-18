@@ -49,3 +49,16 @@ class ScannedMedicine extends Equatable {
         sourceText,
       ];
 }
+
+/// One scanned picture: where it is on the phone and what was found in it.
+class PrescriptionScan extends Equatable {
+  final List<ScannedMedicine> medicines;
+
+  /// Local path of the photo, so it can be saved to Health Records.
+  final String imagePath;
+
+  const PrescriptionScan({required this.medicines, required this.imagePath});
+
+  @override
+  List<Object?> get props => [medicines, imagePath];
+}

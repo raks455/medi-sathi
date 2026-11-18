@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../../.."
+		},
+		{
+			"path": "../../../../../../../medisath_backend/medi-sathi-backend"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}

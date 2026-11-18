@@ -62,7 +62,7 @@ class DoseTile extends StatelessWidget {
                       d.medicationName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -73,7 +73,7 @@ class DoseTile extends StatelessWidget {
                       '${MedicationFormat.displayTime(context, d.localTime)}'
                       ' · ${d.dose}'
                       ' · ${MedicationFormat.label(d.intakeTiming)}',
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: AppColors.textSecondary),
                     ),
                   ],
                 ),

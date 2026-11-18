@@ -50,4 +50,29 @@ static const testNotification="$_api/notifications/test";
   static const markAllNotificationsRead = '$_api/notifications/read-all';
   static String markNotificationRead(String id) =>
       '$_api/notifications/$id/read';
+
+  // Health records (two folders: prescriptions, health_records)
+  static const healthRecords = '$_api/health-records';
+  static const healthRecordsSummary = '$_api/health-records/summary';
+  static String healthRecord(String id) => '$_api/health-records/$id';
+  static String healthRecordFile(String id) => '$_api/health-records/$id/file';
+
+  // Vitals and mood
+  static const vitals = '$_api/vitals';
+  static const vitalsSummary = '$_api/vitals/summary';
+  static String vital(String id) => '$_api/vitals/$id';
+  static const moods = '$_api/moods';
+  static String mood(String id) => '$_api/moods/$id';
+
+  // Period and pregnancy trackers
+  static const cycleOverview = '$_api/cycles/overview';
+  static const cyclePeriods = '$_api/cycles/periods';
+  static const cycleSettings = '$_api/cycles/settings';
+  static String cyclePeriod(String id) => '$_api/cycles/periods/$id';
+  static const pregnancy = '$_api/pregnancy';
+
+  static const feedback = '$_api/feedback';
+
+  /// My name and health details (GET / PUT).
+  static const profile = '$_api/profile';
 }

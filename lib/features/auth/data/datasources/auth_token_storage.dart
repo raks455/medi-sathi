@@ -10,12 +10,21 @@ abstract class AuthTokenStorage {
   Future<String?> readAccessToken();
   Future<String?> readRefreshToken();
   Future<void> updateTokens({required String access, required String refresh});
+
+  /// The user changed their name on the profile screen.
+  Future<void> updateFullName(String fullName);
+
+  /// Forgets the session and what was cached for this user.
   Future<void> clear();
 }
 
 /// TODO: move to flutter_secure_storage before release (tokens are sensitive).
 class AuthTokenStorageImpl implements AuthTokenStorage {
   static const _key = 'auth_session';
+
+  /// Same key as ProfileRepositoryImpl.cacheKey: the next user to sign in
+  /// must not see this user's details.
+  static const _profileCacheKey = 'profile_cache';
   final SharedPreferences prefs;
   AuthTokenStorageImpl(this.prefs);
 
@@ -51,7 +60,15 @@ class AuthTokenStorageImpl implements AuthTokenStorage {
   }
 
   @override
+  Future<void> updateFullName(String fullName) async {
+    final session = await readSession();
+    if (session == null || session.fullName == fullName) return;
+    await saveSession(session.copyWith(fullName: fullName));
+  }
+
+  @override
   Future<void> clear() async {
     await prefs.remove(_key);
+    await prefs.remove(_profileCacheKey);
   }
 }

@@ -12,6 +12,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/google_sign_in_button.dart';
 import '../widgets/or_divider.dart';
 import '../widgets/password_field.dart';
+import '../widgets/terms_consent.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -111,7 +112,7 @@ class _SignInPageState extends State<SignInPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('New to MediSathi?',
+                          Text('New to MediSathi?',
                               style: TextStyle(color: AppColors.textSecondary)),
                           TextButton(
                             onPressed:
@@ -120,6 +121,8 @@ class _SignInPageState extends State<SignInPage> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 8),
+                      const LegalNotice(),
                     ],
                   ),
                 ),

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../app_tour/app_tour.dart';
+import '../../../app_tour/app_tour_service.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../medication/presentation/bloc/medication_bloc.dart';
 import '../../../notification/data/services/push_notification_service.dart';
@@ -11,9 +13,10 @@ import '../../../reminder/presentation/bloc/dose_history_bloc.dart';
 import '../../../reminder/presentation/bloc/reminder_bloc.dart';
 
 /// The signed-in app: the four tabs and the bottom navigation bar.
-class MainShell extends StatelessWidget {
+class MainShell extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
   final PushNotificationService pushService;
+  final AppTourService tour;
 
   /// False on screens opened inside a tab (add / edit / scan), which use the
   /// full height.
@@ -23,6 +26,7 @@ class MainShell extends StatelessWidget {
     super.key,
     required this.navigationShell,
     required this.pushService,
+    required this.tour,
     required this.showNavigationBar,
   });
 
@@ -39,19 +43,42 @@ class MainShell extends StatelessWidget {
     AppRoutes.profile,
   };
 
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  StatefulNavigationShell get navigationShell => widget.navigationShell;
+
+  @override
+  void initState() {
+    super.initState();
+    // First time in the signed-in app: show the tour once the dashboard has
+    // had a moment to load.
+    if (!widget.tour.completed) {
+      Future.delayed(const Duration(milliseconds: 900), _showFirstTour);
+    }
+  }
+
+  Future<void> _showFirstTour() async {
+    if (!mounted || widget.tour.completed || !widget.showNavigationBar) return;
+    await widget.tour.markCompleted();
+    if (mounted) await AppTour.show(context);
+  }
+
   void _onTabSelected(BuildContext context, int index) {
     // Tapping the current tab returns to its first screen.
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
 
     // These tabs show data that other tabs can change: reload on entry.
-    if (index == _dashboard) {
+    if (index == MainShell._dashboard) {
       context.read<ReminderBloc>().add(const TodayRequested());
       context.read<NotificationsBloc>().add(const NotificationsRequested());
-    } else if (index == _medicine) {
+    } else if (index == MainShell._medicine) {
       // Stock goes down as doses are marked taken on the dashboard.
       context.read<MedicationBloc>().add(const MedicationsRequested());
-    } else if (index == _history) {
+    } else if (index == MainShell._history) {
       final history = context.read<DoseHistoryBloc>();
       history.add(HistoryRequested(history.state.days));
     }
@@ -66,7 +93,7 @@ class MainShell extends StatelessWidget {
           context.go(AppRoutes.signIn);
         } else if (state.status == AuthStatus.authenticated) {
           // Signed-in user confirmed: make sure this phone gets reminders.
-          pushService.registerDevice();
+          widget.pushService.registerDevice();
         }
       },
       // Not a Scaffold on purpose: each tab has its own, and snackbars only
@@ -78,33 +105,37 @@ class MainShell extends StatelessWidget {
             // The bar below already covers the bottom safe area.
             child: MediaQuery.removePadding(
               context: context,
-              removeBottom: showNavigationBar,
+              removeBottom: widget.showNavigationBar,
               child: navigationShell,
             ),
           ),
-          if (showNavigationBar)
+          if (widget.showNavigationBar)
             NavigationBar(
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: (i) => _onTabSelected(context, i),
-              destinations: const [
+              destinations: [
                 NavigationDestination(
-                  icon: Icon(Icons.dashboard_outlined),
-                  selectedIcon: Icon(Icons.dashboard_rounded),
+                  key: AppTourKeys.dashboardTab,
+                  icon: const Icon(Icons.dashboard_outlined),
+                  selectedIcon: const Icon(Icons.dashboard_rounded),
                   label: 'Dashboard',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.medication_outlined),
-                  selectedIcon: Icon(Icons.medication_rounded),
+                  key: AppTourKeys.medicineTab,
+                  icon: const Icon(Icons.medication_outlined),
+                  selectedIcon: const Icon(Icons.medication_rounded),
                   label: 'Medicine',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.insights_outlined),
-                  selectedIcon: Icon(Icons.insights_rounded),
+                  key: AppTourKeys.historyTab,
+                  icon: const Icon(Icons.insights_outlined),
+                  selectedIcon: const Icon(Icons.insights_rounded),
                   label: 'History',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.person_outline_rounded),
-                  selectedIcon: Icon(Icons.person_rounded),
+                  key: AppTourKeys.profileTab,
+                  icon: const Icon(Icons.person_outline_rounded),
+                  selectedIcon: const Icon(Icons.person_rounded),
                   label: 'Profile',
                 ),
               ],

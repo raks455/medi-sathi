@@ -12,6 +12,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/google_sign_in_button.dart';
 import '../widgets/or_divider.dart';
 import '../widgets/password_field.dart';
+import '../widgets/terms_consent.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -26,6 +27,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  bool _agreedToTerms = false;
+  bool _showTermsError = false;
 
   @override
   void dispose() {
@@ -36,9 +39,19 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
+  /// Play Store policy: the user must accept the Terms and Privacy Policy
+  /// before an account is created, whichever way they sign up.
+  bool _checkConsent() {
+    if (_agreedToTerms) return true;
+    setState(() => _showTermsError = true);
+    return false;
+  }
+
   void _submit() {
     FocusScope.of(context).unfocus();
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final formOk = _formKey.currentState?.validate() ?? false;
+    final consentOk = _checkConsent();
+    if (!formOk || !consentOk) return;
     context.read<AuthBloc>().add(SignUpSubmitted(
           fullName: _name.text.trim(),
           email: _email.text.trim(),
@@ -114,7 +127,14 @@ class _SignUpPageState extends State<SignUpPage> {
                             Validators.confirmPassword(v, _password.text),
                         onSubmitted: _submit,
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 16),
+                      TermsConsent(
+                        value: _agreedToTerms,
+                        showError: _showTermsError,
+                        enabled: !loading,
+                        onChanged: (v) => setState(() => _agreedToTerms = v),
+                      ),
+                      const SizedBox(height: 20),
                       AuthSubmitButton(
                         label: 'Create account',
                         isLoading: loading && !state.viaGoogle,
@@ -127,15 +147,18 @@ class _SignUpPageState extends State<SignUpPage> {
                         isLoading: loading && state.viaGoogle,
                         onPressed: loading
                             ? null
-                            : () => context
-                                .read<AuthBloc>()
-                                .add(const GoogleSignInRequested()),
+                            : () {
+                                if (!_checkConsent()) return;
+                                context
+                                    .read<AuthBloc>()
+                                    .add(const GoogleSignInRequested());
+                              },
                       ),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Already have an account?',
+                          Text('Already have an account?',
                               style: TextStyle(color: AppColors.textSecondary)),
                           TextButton(
                             onPressed:

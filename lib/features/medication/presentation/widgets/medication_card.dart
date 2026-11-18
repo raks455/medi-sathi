@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../reminder/domain/entities/dose.dart';
 import '../../domain/entities/medication.dart';
 import '../utils/medication_format.dart';
 
@@ -15,6 +16,10 @@ class MedicationCard extends StatelessWidget {
   /// Opens the "add stock" dialog. Only offered when stock is tracked.
   final VoidCallback onRefill;
 
+  /// This medicine's doses scheduled today (from the dashboard data), used
+  /// for "doses left today". Null when not loaded.
+  final List<ScheduledDose>? todayDoses;
+
   const MedicationCard({
     super.key,
     required this.medication,
@@ -22,6 +27,7 @@ class MedicationCard extends StatelessWidget {
     required this.onDelete,
     required this.onToggleStopped,
     required this.onRefill,
+    this.todayDoses,
   });
 
   @override
@@ -35,11 +41,37 @@ class MedicationCard extends StatelessWidget {
         schedule.remindersEnabled &&
         schedule.alertStyle == AlertStyle.alarm;
 
+    // Doses left today and in the course.
+    final today = todayDoses;
+    final todayLeft = today
+        ?.where((d) =>
+            d.status == DoseStatus.upcoming || d.status == DoseStatus.due)
+        .length;
+    final todayText = stopped || today == null
+        ? null
+        : MedicationFormat.todaySummary(
+            total: today.length,
+            left: todayLeft!,
+            taken: today.where((d) => d.status == DoseStatus.taken).length,
+          );
+    final courseLeft = stopped || schedule == null
+        ? null
+        : MedicationFormat.courseDosesLeft(schedule,
+            now: DateTime.now(), todayLeft: todayLeft);
+    String? courseText;
+    if (courseLeft != null) {
+      final ends = MaterialLocalizations.of(context)
+          .formatShortMonthDay(schedule!.endDate!);
+      courseText = courseLeft == 0
+          ? 'Course finished'
+          : 'Course: ${MedicationFormat.doses(courseLeft)} left · ends $ends';
+    }
+
     return Material(
       color: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.tertiary, width: 1.2),
+        side: BorderSide(color: AppColors.tertiary, width: 1.2),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -82,7 +114,7 @@ class MedicationCard extends StatelessWidget {
                     Text(
                       '${m.dose} · ${MedicationFormat.label(m.medicineType)}'
                       ' · ${MedicationFormat.label(m.intakeTiming)}',
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: 8),
                     if (stopped)
@@ -105,6 +137,18 @@ class MedicationCard extends StatelessWidget {
                                     ? ' · Alarm'
                                     : ''),
                       ),
+                    if (todayText != null) ...[
+                      const SizedBox(height: 4),
+                      _InfoRow(
+                        icon: Icons.today_rounded,
+                        text: todayText,
+                        color: todayLeft! > 0 ? AppColors.primary : null,
+                      ),
+                    ],
+                    if (courseText != null) ...[
+                      const SizedBox(height: 4),
+                      _InfoRow(icon: Icons.flag_outlined, text: courseText),
+                    ],
                     if (inventory != null) ...[
                       const SizedBox(height: 4),
                       _InfoRow(
@@ -130,7 +174,7 @@ class MedicationCard extends StatelessWidget {
               ),
               PopupMenuButton<VoidCallback>(
                 tooltip: 'More',
-                icon: const Icon(Icons.more_vert_rounded,
+                icon: Icon(Icons.more_vert_rounded,
                     color: AppColors.textSecondary),
                 onSelected: (action) => action(),
                 // `_`: none of the callbacks use the menu's own context.

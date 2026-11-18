@@ -7,7 +7,7 @@ class OrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
         Expanded(child: Divider(color: AppColors.tertiary, thickness: 1.5)),
         Padding(

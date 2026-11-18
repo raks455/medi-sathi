@@ -47,7 +47,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         },
         builder: (context, state) {
           if (state.slides.isEmpty) {
-            return const Scaffold(
+            return Scaffold(
               body: Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
@@ -67,7 +67,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             AppLogo(size: 36, shadow: false),
                             SizedBox(width: 8),

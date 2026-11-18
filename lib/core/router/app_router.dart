@@ -4,7 +4,15 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/sign_in_page.dart';
 import '../../features/auth/presentation/pages/sign_up_page.dart';
+import '../../features/health_records/domain/health_record.dart';
+import '../../features/health_records/presentation/cubit/health_records_cubit.dart';
+import '../../features/health_records/presentation/pages/health_records_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/info/presentation/pages/about_app_page.dart';
+import '../../features/info/presentation/pages/about_us_page.dart';
+import '../../features/info/presentation/pages/feedback_page.dart';
+import '../../features/info/presentation/pages/help_support_page.dart';
+import '../../features/info/presentation/pages/legal_pages.dart';
 import '../../features/home/presentation/pages/main_shell.dart';
 import '../../features/medication/presentation/bloc/medication_bloc.dart';
 import '../../features/medication/presentation/bloc/prescription_scan_bloc.dart';
@@ -15,12 +23,19 @@ import '../../features/notification/presentation/bloc/notifications_bloc.dart';
 import '../../features/notification/presentation/pages/notifications_page.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/profile/presentation/cubit/profile_cubit.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/reminder/presentation/bloc/dose_history_bloc.dart';
 import '../../features/reminder/presentation/bloc/reminder_bloc.dart';
 import '../../features/reminder/presentation/pages/dose_history_page.dart';
 import '../../features/splash/presentation/bloc/splash_bloc.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/wellness/presentation/cubit/wellness_cubits.dart';
+import '../../features/wellness/presentation/pages/vitals_page.dart';
+import '../../features/womens_health/presentation/cubit/womens_health_cubits.dart';
+import '../../features/womens_health/presentation/pages/period_tracker_page.dart';
+import '../../features/womens_health/presentation/pages/pregnancy_tracker_page.dart';
 import '../di/injection_container.dart';
 import 'app_routes.dart';
 
@@ -63,6 +78,64 @@ class AppRouter {
         ),
       ),
 
+      GoRoute(
+        path: AppRoutes.privacyPolicy,
+        builder: (context, state) => const PrivacyPolicyPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.terms,
+        builder: (context, state) => const TermsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.aboutApp,
+        builder: (context, state) => const AboutAppPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.aboutUs,
+        builder: (context, state) => const AboutUsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.help,
+        builder: (context, state) => const HelpSupportPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.feedback,
+        builder: (context, state) => FeedbackPage(service: sl()),
+      ),
+      GoRoute(
+        path: AppRoutes.healthRecords,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<HealthRecordsCubit>()..load(),
+          child: HealthRecordsPage(
+            initialFolder: state.uri.queryParameters['folder'] ==
+                    RecordFolder.healthRecords.apiValue
+                ? RecordFolder.healthRecords
+                : RecordFolder.prescriptions,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.vitals,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<VitalsCubit>()..load(),
+          child: const VitalsPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.periodTracker,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<CycleCubit>()..load(),
+          child: const PeriodTrackerPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.pregnancyTracker,
+        builder: (context, state) => BlocProvider(
+          create: (_) => sl<PregnancyCubit>()..load(),
+          child: const PregnancyTrackerPage(),
+        ),
+      ),
+
       // The signed-in app: four tabs behind a bottom navigation bar. Each tab
       // keeps its own state. The blocs live as long as the user is signed in
       // and are shared by every screen inside the tabs.
@@ -87,10 +160,13 @@ class AppRouter {
               create: (_) =>
                   sl<NotificationsBloc>()..add(const NotificationsRequested()),
             ),
+            BlocProvider(create: (_) => sl<MoodCubit>()..load()),
+            BlocProvider(create: (_) => sl<ProfileCubit>()..load()),
           ],
           child: MainShell(
             navigationShell: navigationShell,
             pushService: sl(),
+            tour: sl(),
             showNavigationBar:
                 MainShell.tabLocations.contains(state.uri.path),
           ),
@@ -122,7 +198,7 @@ class AppRouter {
                   path: 'add/scan',
                   builder: (context, state) => BlocProvider(
                     create: (_) => sl<PrescriptionScanBloc>(),
-                    child: const ScanMedicinePage(),
+                    child: ScanMedicinePage(records: sl()),
                   ),
                 ),
                 GoRoute(
@@ -152,7 +228,16 @@ class AppRouter {
           StatefulShellBranch(routes: [
             GoRoute(
               path: AppRoutes.profile,
-              builder: (context, state) => ProfilePage(pushService: sl()),
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<CycleCubit>()..load(),
+                child: ProfilePage(pushService: sl()),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'edit',
+                  builder: (context, state) => const EditProfilePage(),
+                ),
+              ],
             ),
           ]),
         ],

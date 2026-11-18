@@ -95,10 +95,68 @@ class MedicationFormat {
     return 'lasts $days days';
   }
 
-  /// One-line stock summary: '12 left · lasts 6 days'.
+  static String doses(int n) => n == 1 ? '1 dose' : '$n doses';
+
+  /// Full doses the stock covers.
+  static int dosesInStock(MedicationInventory inventory) =>
+      inventory.unitsPerDose <= 0
+          ? 0
+          : (inventory.quantity / inventory.unitsPerDose + 1e-9).floor();
+
+  /// One-line stock summary: '12 doses left · lasts 6 days', or with more
+  /// than one unit per dose '24 left (12 doses) · lasts 6 days'.
   static String stockSummary(MedicationInventory inventory) {
-    final left = '${amount(inventory.quantity)} left';
+    final n = dosesInStock(inventory);
+    final left = inventory.unitsPerDose == 1
+        ? '${doses(n)} left'
+        : '${amount(inventory.quantity)} left (${doses(n)})';
     final runsOut = runsOutLabel(inventory);
     return runsOut == null ? left : '$left · $runsOut';
+  }
+
+  /// "Today: 1 of 2 doses left" / "Today: 2 of 2 taken". Null when nothing
+  /// is scheduled today.
+  static String? todaySummary({required int total, required int left, required int taken}) {
+    if (total == 0) return null;
+    if (left > 0) return 'Today: $left of ${doses(total)} left';
+    return 'Today: $taken of $total taken';
+  }
+
+  /// Doses still to come in a course with an end date, counting today's
+  /// remaining ones ([todayLeft], or times not yet passed when unknown).
+  /// Null for courses without an end date or as-needed medicines.
+  static int? courseDosesLeft(MedicationSchedule schedule,
+      {required DateTime now, int? todayLeft}) {
+    final end = schedule.endDate;
+    if (end == null || schedule.reminderTimes.isEmpty) return null;
+    final today = DateTime(now.year, now.month, now.day);
+    final lastDay = DateTime(end.year, end.month, end.day);
+    if (lastDay.isBefore(today)) return 0;
+
+    bool scheduledOn(DateTime d) {
+      final days = schedule.daysOfWeek;
+      if (days != null && !days.contains(d.weekday - 1)) return false;
+      final start = schedule.startDate;
+      return start == null ||
+          !d.isBefore(DateTime(start.year, start.month, start.day));
+    }
+
+    final perDay = schedule.reminderTimes.length;
+    var count = 0;
+    if (scheduledOn(today)) {
+      count += todayLeft ??
+          schedule.reminderTimes.where((t) {
+            final parts = t.split(':');
+            final at = DateTime(now.year, now.month, now.day,
+                int.parse(parts[0]), int.parse(parts[1]));
+            return at.isAfter(now);
+          }).length;
+    }
+    for (var d = today.add(const Duration(days: 1));
+        !d.isAfter(lastDay);
+        d = DateTime(d.year, d.month, d.day + 1)) {
+      if (scheduledOn(d)) count += perDay;
+    }
+    return count;
   }
 }

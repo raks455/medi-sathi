@@ -6,11 +6,11 @@ import '../entities/scanned_medicine.dart';
 import '../repositories/prescription_scan_repository.dart';
 
 /// Right(null) means the user cancelled picking a photo.
-class ScanPrescription implements UseCase<List<ScannedMedicine>?, ScanSource> {
+class ScanPrescription implements UseCase<PrescriptionScan?, ScanSource> {
   final PrescriptionScanRepository repository;
   ScanPrescription(this.repository);
 
   @override
-  Future<Either<Failure, List<ScannedMedicine>?>> call(ScanSource source) =>
+  Future<Either<Failure, PrescriptionScan?>> call(ScanSource source) =>
       repository.scan(source);
 }

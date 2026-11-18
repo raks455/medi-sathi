@@ -31,13 +31,13 @@ class GoogleSignInButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: isLoading ? null : onPressed,
       style: OutlinedButton.styleFrom(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
-        disabledBackgroundColor: Colors.white,
-        side: const BorderSide(color: AppColors.tertiary, width: 1.5),
+        disabledBackgroundColor: AppColors.surface,
+        side: BorderSide(color: AppColors.tertiary, width: 1.5),
       ),
       child: isLoading
-          ? const SizedBox(
+          ? SizedBox(
               width: 22,
               height: 22,
               child: CircularProgressIndicator(

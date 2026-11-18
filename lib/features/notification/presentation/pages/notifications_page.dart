@@ -122,6 +122,7 @@ class _NotificationTile extends StatelessWidget {
   static IconData _icon(String type) => switch (type) {
         AppNotification.typeDoseReminder => Icons.medication_outlined,
         AppNotification.typeRefillReminder => Icons.inventory_2_outlined,
+        AppNotification.typePeriodReminder => Icons.water_drop_outlined,
         _ => Icons.notifications_none_rounded,
       };
 
@@ -153,7 +154,7 @@ class _NotificationTile extends StatelessWidget {
       color: unread ? AppColors.tertiaryLight : AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.tertiary, width: 1.2),
+        side: BorderSide(color: AppColors.tertiary, width: 1.2),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -189,12 +190,12 @@ class _NotificationTile extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(n.body,
                           style:
-                              const TextStyle(color: AppColors.textSecondary)),
+                              TextStyle(color: AppColors.textSecondary)),
                     ],
                     const SizedBox(height: 6),
                     Text(
                       _when(context, n.createdAt),
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 12, color: AppColors.textSecondary),
                     ),
                   ],
@@ -205,7 +206,7 @@ class _NotificationTile extends StatelessWidget {
                   width: 10,
                   height: 10,
                   margin: const EdgeInsets.only(left: 8, top: 4),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
@@ -244,7 +245,7 @@ class _Message extends StatelessWidget {
             Container(
               width: 96,
               height: 96,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.tertiaryLight,
                 shape: BoxShape.circle,
               ),
@@ -254,7 +255,7 @@ class _Message extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
@@ -264,7 +265,7 @@ class _Message extends StatelessWidget {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
             if (actionLabel != null) ...[
               const SizedBox(height: 20),

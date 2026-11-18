@@ -7,7 +7,19 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/app_tour/app_tour_service.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/info/data/feedback_service.dart';
+import '../../features/health_records/data/health_records_remote_datasource.dart';
+import '../../features/health_records/data/health_records_repository_impl.dart';
+import '../../features/health_records/domain/health_records_repository.dart';
+import '../../features/health_records/presentation/cubit/health_records_cubit.dart';
+import '../../features/wellness/data/wellness_repository_impl.dart';
+import '../../features/wellness/domain/wellness.dart';
+import '../../features/wellness/presentation/cubit/wellness_cubits.dart';
+import '../../features/womens_health/data/womens_health_repository_impl.dart';
+import '../../features/womens_health/domain/womens_health.dart';
+import '../../features/womens_health/presentation/cubit/womens_health_cubits.dart';
 import '../../features/auth/data/datasources/auth_token_storage.dart';
 import '../../features/auth/data/datasources/google_auth_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -47,6 +59,9 @@ import '../../features/onboarding/domain/usecases/check_onboarding_completed.dar
 import '../../features/onboarding/domain/usecases/complete_onboarding.dart';
 import '../../features/onboarding/domain/usecases/get_onboarding_slides.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
+import '../../features/profile/data/profile_repository_impl.dart';
+import '../../features/profile/domain/user_profile.dart';
+import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../../features/reminder/data/datasources/reminder_remote_datasource.dart';
 import '../../features/reminder/data/repositories/reminder_repository_impl.dart';
 import '../../features/reminder/domain/repositories/reminder_repository.dart';
@@ -58,6 +73,7 @@ import '../../features/reminder/presentation/bloc/reminder_bloc.dart';
 import '../../features/splash/presentation/bloc/splash_bloc.dart';
 import '../constants/api_constants.dart';
 import '../network/dio_client.dart';
+import '../theme/theme_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -65,6 +81,10 @@ Future<void> init() async {
   // ---------- External ----------
   final prefs = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => prefs);
+
+  // ---------- App preferences ----------
+  sl.registerLazySingleton(() => ThemeCubit(sl()));
+  sl.registerLazySingleton(() => AppTourService(sl()));
 
   // ---------- Auth: storage first (the network layer needs it) ----------
   sl.registerLazySingleton<AuthTokenStorage>(() => AuthTokenStorageImpl(sl()));
@@ -169,6 +189,38 @@ Future<void> init() async {
             remote: sl(),
             prefs: sl(),
           ));
+
+  sl.registerLazySingleton(() => FeedbackService(sl()));
+
+  // ---------- Health records ----------
+  sl.registerLazySingleton(() => HealthRecordsRemoteDataSource(sl()));
+  sl.registerLazySingleton<HealthRecordsRepository>(
+      () => HealthRecordsRepositoryImpl(sl()));
+  sl.registerFactory(() => HealthRecordsCubit(sl()));
+
+  // ---------- Vitals and mood ----------
+  sl.registerLazySingleton(() => WellnessRemoteDataSource(sl()));
+  sl.registerLazySingleton<WellnessRepository>(
+      () => WellnessRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => VitalUnitsStore(sl()));
+  sl.registerFactory(() => VitalsCubit(sl(), sl()));
+  sl.registerFactory(() => MoodCubit(sl()));
+
+  // ---------- Period and pregnancy trackers ----------
+  sl.registerLazySingleton(() => WomensHealthRemoteDataSource(sl()));
+  sl.registerLazySingleton<WomensHealthRepository>(
+      () => WomensHealthRepositoryImpl(sl()));
+  sl.registerFactory(() => CycleCubit(sl()));
+  sl.registerFactory(() => PregnancyCubit(sl()));
+
+  // ---------- Profile ----------
+  sl.registerLazySingleton(() => ProfileRemoteDataSource(sl()));
+  sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(
+        remote: sl(),
+        prefs: sl(),
+        tokenStorage: sl(),
+      ));
+  sl.registerFactory(() => ProfileCubit(sl()));
 
   // ---------- Splash ----------
   sl.registerFactory(() => SplashBloc(

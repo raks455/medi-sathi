@@ -29,7 +29,7 @@ Future<void> showAddMedicineSheet(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(left: 4, bottom: 12),
                 child: Text(
                   'Add medicine',
@@ -80,7 +80,7 @@ class _Option extends StatelessWidget {
       color: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.tertiary, width: 1.2),
+        side: BorderSide(color: AppColors.tertiary, width: 1.2),
       ),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
@@ -97,11 +97,11 @@ class _Option extends StatelessWidget {
           child: Icon(icon, color: AppColors.primary),
         ),
         title: Text(title,
-            style: const TextStyle(
+            style: TextStyle(
                 fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
         subtitle: Text(subtitle,
-            style: const TextStyle(color: AppColors.textSecondary)),
-        trailing: const Icon(Icons.chevron_right_rounded,
+            style: TextStyle(color: AppColors.textSecondary)),
+        trailing: Icon(Icons.chevron_right_rounded,
             color: AppColors.textSecondary),
       ),
     );
